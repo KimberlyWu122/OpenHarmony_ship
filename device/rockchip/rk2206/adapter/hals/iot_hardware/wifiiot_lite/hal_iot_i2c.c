@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights
+ * reserved. Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You may obtain a
+ * copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,49 +17,290 @@
 #include "iot_i2c.h"
 #include "lz_hardware.h"
 
-#define TEST_ID 0
-I2cBusIo i2c = {
-        .scl =  {.gpio = GPIO0_PA1, .func = MUX_FUNC3, .type = PULL_NONE, .drv = DRIVE_KEEP, .dir = LZGPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-        .sda =  {.gpio = GPIO0_PA0, .func = MUX_FUNC3, .type = PULL_NONE, .drv = DRIVE_KEEP, .dir = LZGPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-        .id = FUNC_ID_I2C0,
-        .mode = FUNC_MODE_M2,
-    };
+struct I2cBusInfo {
+  unsigned int id;
+  I2cBusIo i2c_bus;
+};
 
+static struct I2cBusInfo
+    m_i2c_bus_info[EI2CDEV_MAX] =
+        {
+            [EI2C0_M2] =
+                {
+                    .id = 0,
+                    .i2c_bus =
+                        {
+                            .scl = {.gpio = GPIO0_PA1,
+                                    .func = MUX_FUNC3,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .sda = {.gpio = GPIO0_PA0,
+                                    .func = MUX_FUNC3,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .id = FUNC_ID_I2C0,
+                            .mode = FUNC_MODE_M2,
+                        },
+                },
+            [EI2C1_M2] =
+                {
+                    .id = 1,
+                    .i2c_bus =
+                        {
+                            .scl = {.gpio = GPIO0_PA3,
+                                    .func = MUX_FUNC3,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .sda = {.gpio = GPIO0_PA2,
+                                    .func = MUX_FUNC3,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .id = FUNC_ID_I2C1,
+                            .mode = FUNC_MODE_M2,
+                        },
+                },
+            [EI2C0_M0] =
+                {
+                    .id = 0,
+                    .i2c_bus =
+                        {
+                            .scl =
+                                {
+                                    .gpio = GPIO0_PB5,
+                                    .func = MUX_FUNC4,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP,
+                                },
+                            .sda =
+                                {
+                                    .gpio = GPIO0_PB4,
+                                    .func = MUX_FUNC4,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP,
+                                },
+                            .id = FUNC_ID_I2C0,
+                            .mode = FUNC_MODE_M0,
+                        },
+                },
+            [EI2C1_M0] =
+                {
+                    .id = 1,
+                    .i2c_bus =
+                        {
+                            .scl = {.gpio = GPIO0_PB7,
+                                    .func = MUX_FUNC4,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .sda = {.gpio = GPIO0_PB6,
+                                    .func = MUX_FUNC4,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .id = FUNC_ID_I2C1,
+                            .mode = FUNC_MODE_M0,
+                        },
+                },
+            [EI2C1_M1] =
+                {
+                    .id = 1,
+                    .i2c_bus =
+                        {
+                            .scl = {.gpio = GPIO0_PC2,
+                                    .func = MUX_FUNC5,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .sda = {.gpio = GPIO0_PC1,
+                                    .func = MUX_FUNC5,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .id = FUNC_ID_I2C1,
+                            .mode = FUNC_MODE_M1,
+                        },
+                },
+            [EI2C0_M1] =
+                {
+                    .id = 0,
+                    .i2c_bus =
+                        {
+                            .scl = {.gpio = GPIO0_PC7,
+                                    .func = MUX_FUNC5,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .sda = {.gpio = GPIO0_PC6,
+                                    .func = MUX_FUNC5,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .id = FUNC_ID_I2C0,
+                            .mode = FUNC_MODE_M1,
+                        },
+                },
+            [EI2C2_M0] =
+                {
+                    .id = 2,
+                    .i2c_bus =
+                        {
+                            .scl = {.gpio = GPIO0_PD6,
+                                    .func = MUX_FUNC1,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .sda = {.gpio = GPIO0_PD5,
+                                    .func = MUX_FUNC1,
+                                    .type = PULL_NONE,
+                                    .drv = DRIVE_KEEP,
+                                    .dir = LZGPIO_DIR_KEEP,
+                                    .val = LZGPIO_LEVEL_KEEP},
+                            .id = FUNC_ID_I2C2,
+                            .mode = FUNC_MODE_M0,
+                        },
+                },
+};
 
+unsigned int IoTI2cWrite(unsigned int id, unsigned short deviceAddr,
+                         const unsigned char *data, unsigned int dataLen) {
 
-unsigned int IoTI2cWrite(unsigned int id, unsigned short deviceAddr, const unsigned char *data, unsigned int dataLen)
-{
-    id = TEST_ID;
-    return LzI2cWrite(id, deviceAddr, data, dataLen);
+  unsigned int ret = 0;
+
+  if (id >= EI2CDEV_MAX) {
+    PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
+    return IOT_FAILURE;
+  }
+
+  ret = LzI2cWrite(m_i2c_bus_info[id].id, deviceAddr, data, dataLen);
+  if (ret != LZ_HARDWARE_SUCCESS) {
+    return IOT_FAILURE;
+  }
+
+  return IOT_SUCCESS;
 }
 
-unsigned int IoTI2cRead(unsigned int id, unsigned short deviceAddr, unsigned char *data, unsigned int dataLen)
-{
-    id = TEST_ID;
-    return LzI2cRead(id, deviceAddr, data, dataLen);
+unsigned int IoTI2cRead(unsigned int id, unsigned short deviceAddr,
+                        unsigned char *data, unsigned int dataLen) {
+
+  unsigned int ret = 0;
+
+  if (id >= EI2CDEV_MAX) {
+    PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
+    return IOT_FAILURE;
+  }
+
+  ret = LzI2cRead(m_i2c_bus_info[id].id, deviceAddr, data, dataLen);
+  if (ret != LZ_HARDWARE_SUCCESS) {
+    return IOT_FAILURE;
+  }
+
+  return IOT_SUCCESS;
 }
 
-unsigned int IoTI2cInit(unsigned int id, unsigned int baudrate)
-{
-    unsigned int ret = 0;
+unsigned int IoTI2cInit(unsigned int id, unsigned int baudrate) {
 
-    id = TEST_ID;
-    ret = I2cIoInit(i2c);
-    if(ret != 0)
-    {
-        return ret;
-    }
-    return LzI2cInit(id, baudrate);
+  unsigned int ret = 0;
+  unsigned int fre = 100000;
+
+  if (id >= EI2CDEV_MAX) {
+    PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
+    return IOT_FAILURE;
+  }
+
+  if (baudrate >= EI2C_FRE_MAX) {
+    PRINT_ERR("baudrate(%d) >= EI2C_FRE_MAX(%d)\n", baudrate, EI2C_FRE_MAX);
+    return IOT_FAILURE;
+  }
+
+  switch(baudrate)
+  {
+    case EI2C_FRE_100K:
+      fre = 100000;
+    break;
+    case EI2C_FRE_400K:
+      fre = 400000;
+    break;
+    case EI2C_FRE_1000K:
+      fre = 1000000;
+    break;
+  }
+
+  ret = I2cIoInit(m_i2c_bus_info[id].i2c_bus);
+  if (ret != LZ_HARDWARE_SUCCESS) {
+    return IOT_FAILURE;
+  }
+
+  ret = LzI2cInit(m_i2c_bus_info[id].id, baudrate);
+  if (ret != LZ_HARDWARE_SUCCESS) {
+    return IOT_FAILURE;
+  }
+
+  return IOT_SUCCESS;
 }
 
-unsigned int IoTI2cDeinit(unsigned int id)
-{
-    id = TEST_ID;
-    return LzI2cDeinit(id);
+unsigned int IoTI2cDeinit(unsigned int id) {
+
+  unsigned int ret = 0;
+
+  if (id >= EI2CDEV_MAX) {
+    PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
+    return IOT_FAILURE;
+  }
+
+  ret = LzI2cDeinit(m_i2c_bus_info[id].id);
+  if (ret != LZ_HARDWARE_SUCCESS) {
+    return IOT_FAILURE;
+  }
+
+  return IOT_SUCCESS;
 }
 
-unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate)
-{
-    id = TEST_ID;
-    return LzI2cSetFreq(id, baudrate);
+unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate) {
+
+  unsigned int ret = 0;
+  unsigned int fre = 100000;
+
+  if (baudrate >= EI2C_FRE_MAX) {
+    PRINT_ERR("baudrate(%d) >= EI2C_FRE_MAX(%d)\n", baudrate, EI2C_FRE_MAX);
+    return IOT_FAILURE;
+  }
+
+  switch(baudrate)
+  {
+    case EI2C_FRE_100K:
+      fre = 100000;
+    break;
+    case EI2C_FRE_400K:
+      fre = 400000;
+    break;
+    case EI2C_FRE_1000K:
+      fre = 1000000;
+    break;
+  }
+
+  ret = LzI2cSetFreq(m_i2c_bus_info[id].id, baudrate);
+  if (ret != LZ_HARDWARE_SUCCESS) {
+    return IOT_FAILURE;
+  }
+
+  return IOT_SUCCESS;
 }

@@ -39,6 +39,8 @@
 #ifndef IOT_GPIO_H
 #define IOT_GPIO_H
 
+#include "lz_hardware/gpio.h"
+
 /**
  * @brief Enumerates GPIO level values.
  */

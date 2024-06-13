@@ -48,7 +48,7 @@
  * @brief Defines a module-level return value to indicate an operation failure.
  *
  */
-#define IOT_FAILURE   (-1)
+#define IOT_FAILURE   (1)
 
 #endif
 /** @} */

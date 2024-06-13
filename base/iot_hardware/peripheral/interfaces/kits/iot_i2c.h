@@ -41,6 +41,26 @@
 #ifndef IOT_I2C_H
 #define IOT_I2C_H
 
+/* 定义I2C速率 */
+enum EnumI2cFre {
+  EI2C_FRE_100K = 0,
+  EI2C_FRE_400K,
+  EI2C_FRE_1000K,
+  EI2C_FRE_MAX,
+};
+
+/* 定义I2C设备数量 */
+enum EnumI2cId {
+  EI2C0_M2 = 0, /* SDA GPIO0_PA0 SCL GPIO0_PA1 */
+  EI2C1_M2,     /* SDA GPIO0_PA2 SCL GPIO0_PA3 */
+  EI2C0_M0,     /* SDA GPIO0_PB4 SCL GPIO0_PB5 */
+  EI2C1_M0,     /* SDA GPIO0_PB6 SCL GPIO0_PB7 */
+  EI2C1_M1,     /* SDA GPIO0_PC1 SCL GPIO0_PC2 */
+  EI2C0_M1,     /* SDA GPIO0_PC6 SCL GPIO0_PC7 */
+  EI2C2_M0,     /* SDA GPIO0_PD5 SCL GPIO0_PD6 */
+  EI2CDEV_MAX
+};
+
 /**
  * @brief Initializes an I2C device with a specified baud rate.
  *
