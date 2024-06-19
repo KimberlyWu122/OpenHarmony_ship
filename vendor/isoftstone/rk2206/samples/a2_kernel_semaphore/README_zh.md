@@ -2,9 +2,9 @@
 
 ## 实验内容
 
-本例程演示如何在通晓开发板-RK2206上使用鸿蒙LiteOS-M内核接口，通过信号量控制不同的线程，实现任务之间的同步。
+本例程演示如何在通晓开发板上使用鸿蒙LiteOS-M内核接口，通过信号量控制不同的线程，实现任务之间的同步。
 
-![通晓开发板-RK2206](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
+![通晓开发板](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
 
 ## 程序设计
 

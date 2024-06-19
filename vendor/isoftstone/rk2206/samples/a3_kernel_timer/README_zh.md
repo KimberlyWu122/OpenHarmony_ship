@@ -1,10 +1,10 @@
-# 小凌派-RK2206开发板OpenHarmonyOS内核开发-定时器
+# 通晓开发板OpenHarmonyOS内核开发-定时器
 
 ## 实验内容
 
-本例程演示如何在小凌派-RK2206开发板上使用鸿蒙LiteOS-M内核接口，进行定时器编程开发。
+本例程演示如何在通晓开发板-RK2206上使用鸿蒙LiteOS-M内核接口，进行定时器编程开发。
 
-![小凌派-RK2206开发板](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
+![通晓开发板-RK2206](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
 
 ## 程序设计
 

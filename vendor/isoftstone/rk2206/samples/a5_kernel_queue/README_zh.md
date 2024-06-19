@@ -1,10 +1,10 @@
-# 小凌派-RK2206开发板OpenHarmonyOS内核开发-队列
+# 通晓开发板OpenHarmonyOS内核开发-队列
 
 ## 实验内容
 
-本例程演示如何在小凌派-RK2206开发板上使用鸿蒙LiteOS-M内核接口，进行队列编程开发。例程创建一个队列，两个任务；任务1调用写队列接口发送消息，任务2调用读队列接口接收消息。
+本例程演示如何在通晓开发板上使用鸿蒙LiteOS-M内核接口，进行队列编程开发。例程创建一个队列，两个任务；任务1调用写队列接口发送消息，任务2调用读队列接口接收消息。
 
-![小凌派-RK2206开发板](/vendor/lockzhiner/rk2206/docs/figures/lockzhiner-rk2206.jpg)
+![通晓开发板](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
 
 ## 程序设计
 
@@ -199,13 +199,13 @@ void msg_read_thread(void *arg)
 
 ### 修改 BUILD.gn 文件
 
-修改 `vendor/lockzhiner/rk2206/sample` 路径下 BUILD.gn 文件，指定 `a5_kernel_queue` 参与编译。
+修改 `vendor/isoftstone/rk2206/sample` 路径下 BUILD.gn 文件，指定 `a5_kernel_queue` 参与编译。
 
 ```r
 "./a5_kernel_queue:queue_example",
 ```
 
-修改 `device/lockzhiner/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-lqueue_example` 参与编译。
+修改 `device/rockchip/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-lqueue_example` 参与编译。
 
 ```r
 hardware_LIBS = -lhal_iothardware -lhardware -lqueue_example
