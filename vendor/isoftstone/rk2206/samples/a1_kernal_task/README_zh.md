@@ -1,10 +1,10 @@
-# 小凌派-RK2206开发板OpenHarmonyOS内核开发-任务
+# 通晓开发板OpenHarmonyOS内核开发-任务
 
 ## 实验内容
 
-本例程演示如何在小凌派-RK2206开发板上使用鸿蒙LiteOS-M内核接口，进行任务编程开发。例程创建两个任务，任务1 1s执行一次，任务2 2s执行一次。
+本例程演示如何在通晓开发板-RK2206上使用鸿蒙LiteOS-M内核接口，进行任务编程开发。例程创建两个任务，任务1 1s执行一次，任务2 2s执行一次。
 
-![小凌派-RK2206开发板](/vendor/lockzhiner/rk2206/docs/figures/lockzhiner-rk2206.jpg)
+![通晓开发板-RK2206](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
 
 ## 程序设计
 
@@ -131,13 +131,13 @@ void task_two()
 
 ### 修改 BUILD.gn 文件
 
-修改 `vendor/lockzhiner/rk2206/sample` 路径下 BUILD.gn 文件，指定 `a1_kernal_task` 参与编译。
+修改 `vendor/isoftstone/rk2206/sample` 路径下 BUILD.gn 文件，指定 `a1_kernal_task` 参与编译。
 
 ```r
 "./a1_kernal_task:task_example",
 ```
 
-修改 `device/lockzhiner/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-ltask_example` 参与编译。
+修改 `device/rockchip/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-ltask_example` 参与编译。
 
 ```r
 hardware_LIBS = -lhal_iothardware -lhardware -ltask_example
