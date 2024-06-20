@@ -321,10 +321,10 @@ void hal_dir_process()
 
 ### 修改 BUILD.gn 文件
 
-修改 `vendor/isoftstone/rk2206/sample` 路径下 BUILD.gn 文件，指定 `a9_hal_dir` 参与编译。
+修改 `vendor/isoftstone/rk2206/sample` 路径下 BUILD.gn 文件，指定 `a8_hal_dir` 参与编译。
 
 ```r
-"./a9_hal_dir:hal_dir_example",
+"./a8_hal_dir:hal_dir_example",
 ```
 
 修改 `device/rockchip/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-lhal_dir_example` 参与编译。
@@ -339,19 +339,18 @@ app_LIBS = -lhal_dir_example
 
 ```r
 HalFileInit: Flash Init Successful!
-entry_length = 5
-i(0), name(.), type(4)(directory)
-i(1), name(..), type(4)(directory)
-i(2), name(deviceid), type(8)(regular file)
-i(3), name(helloworld.c), type(8)(regular file)
-i(4), name(test.txt), type(8)(regular file)
 
-entry_length = 5
+entry_length = 4
 i(0), name(.), type(4)(directory)
 i(1), name(..), type(4)(directory)
-i(2), name(deviceid), type(8)(regular file)
-i(3), name(helloworld.c), type(8)(regular file)
-i(4), name(test.txt), type(8)(regular file)
+i(2), name(helloworld.c), type(8)(regular file)
+i(3), name(test.txt), type(8)(regular file)
+
+entry_length = 4
+i(0), name(.), type(4)(directory)
+i(1), name(..), type(4)(directory)
+i(2), name(helloworld.c), type(8)(regular file)
+i(3), name(test.txt), type(8)(regular file)
 
 ```
 
