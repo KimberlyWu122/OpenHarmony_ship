@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights reserved.
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +18,7 @@
 #include "iot_errno.h"
 #include "iot_gpio.h"
 
+/* 人体感应传感器GPIO */
 #define GPIO_BODY_INDUCTION      GPIO0_PA3
 
 /* 记录中断触发次数 */
@@ -58,8 +59,8 @@ void gpio_process()
 
     /* 初始化中断触发次数 */
     m_gpio_interrupt_count = 0;
-    /* 开启中断使能 */
-    IoTGpioSetIsrMask(GPIO_BODY_INDUCTION, TRUE);
+    /* 关闭中断屏蔽 */
+    IoTGpioSetIsrMask(GPIO_BODY_INDUCTION, FALSE);
     
     while (1)
     {

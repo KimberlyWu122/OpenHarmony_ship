@@ -2,13 +2,15 @@
 
 本示例将演示如何在通晓开发板上使用GPIO做输入输出操作。
 
-![通晓开发板-RK2206](/vendor/lockzhiner/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
+![通晓开发板-RK2206](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
+
+## 实验设计
 
 ### 硬件设计
 
-![报警灯硬件](/vendor/lockzhiner/rk2206/docs/figures/gpio/报警灯硬件.jpg)
+![报警灯原理图](/vendor/isoftstone/rk2206/docs/figures/gpio/报警灯原理图.jpg)
 
-![报警灯与开发板连接](/vendor/lockzhiner/rk2206/docs/figures/gpio/报警灯与开发板连接.jpg)
+![报警灯与开发板连接](/vendor/isoftstone/rk2206/docs/figures/gpio/报警灯与开发板连接.jpg)
 
 从硬件原理图可以知道：
 - GPIO0_PA5引脚输出高电平时，三极管导通，LED亮。
@@ -22,6 +24,8 @@
 #include "iot_gpio.h"
 ```
 
+[gpio接口文档](/device/rockchip/hardware/docs/GPIO.md)
+
 #### GPIO初始化分析
 
 这部分代码为GPIO初始化的代码。首先用 `IoTGpioInit()` 函数将 `GPIO0_PA5`初始化。
@@ -32,6 +36,7 @@ void gpio_process()
     unsigned int cur = 0;
     IotGpioValue value = IOT_GPIO_VALUE0;
 
+    /* 初始化GPIO */
     IoTGpioInit(GPIO_ALARM_LIGHT);
     ...
 }
@@ -43,10 +48,13 @@ void gpio_process()
 
 ```c
 printf("Write GPIO\r\n");
+/* 设置GPIO为输出模式 */
 IoTGpioSetDir(GPIO_ALARM_LIGHT, IOT_GPIO_DIR_OUT);
 if (cur == 0)
 {
+        /* 输出低电平 */
         IoTGpioSetOutputVal(GPIO_ALARM_LIGHT, IOT_GPIO_VALUE0);
+        /* 获取电平 */
         IoTGpioGetOutputVal(GPIO_ALARM_LIGHT, &value);
         printf("gpio set %d => gpio get %d\r\n", cur, value);
 
@@ -54,7 +62,9 @@ if (cur == 0)
 }
 else
 {
+        /* 输出高电平 */
         IoTGpioSetOutputVal(GPIO_ALARM_LIGHT, IOT_GPIO_VALUE1);
+        /* 获取电平 */
         IoTGpioGetOutputVal(GPIO_ALARM_LIGHT, &value);
         printf("gpio set %d => gpio get %d\r\n", cur, value);
 
@@ -70,7 +80,9 @@ LOS_Msleep(5000);
 
 ```c
 printf("Read GPIO\r\n");
+/* 设置GPIO为输出模式 */
 IoTGpioSetDir(GPIO_ALARM_LIGHT, IOT_GPIO_DIR_IN);
+/* 获取电平 */
 IoTGpioGetInputVal(GPIO_ALARM_LIGHT, &value);
 printf("gpio get %d\r\n", value);
 /* 睡眠5秒 */
@@ -81,13 +93,13 @@ LOS_Msleep(5000);
 
 ### 修改 BUILD.gn 文件
 
-修改 `vendor/lockzhiner/rk2206/sample` 路径下 BUILD.gn 文件，指定 `gpio_example` 参与编译。
+修改 `vendor/isoftstone/rk2206/sample` 路径下 BUILD.gn 文件，指定 `gpio_example` 参与编译。
 
 ```r
 "./b1_gpio:gpio_example",
 ```
 
-修改 `device/lockzhiner/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-lgpio_example` 参与编译。
+修改 `device/rockchip/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-lgpio_example` 参与编译。
 
 ```r
 hardware_LIBS = -lhal_iothardware -lhardware -lgpio_example

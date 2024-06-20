@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights reserved.
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,9 +14,11 @@
  */
 #include "los_task.h"
 #include "ohos_init.h"
+
 #include "iot_errno.h"
 #include "iot_gpio.h"
 
+/*报警灯GPIO */
 #define GPIO_ALARM_LIGHT     GPIO0_PA5
 
 /***************************************************************
@@ -30,16 +32,20 @@ void gpio_process()
     unsigned int cur = 0;
     IotGpioValue value = IOT_GPIO_VALUE0;
 
+    /* 初始化GPIO */
     IoTGpioInit(GPIO_ALARM_LIGHT);
     
     while (1)
     {
         printf("***************GPIO Example*************\r\n");
         printf("Write GPIO\r\n");
+        /* 设置GPIO为输出模式 */
         IoTGpioSetDir(GPIO_ALARM_LIGHT, IOT_GPIO_DIR_OUT);
         if (cur == 0)
         {
+            /* 输出低电平 */
             IoTGpioSetOutputVal(GPIO_ALARM_LIGHT, IOT_GPIO_VALUE0);
+            /* 获取电平 */
             IoTGpioGetOutputVal(GPIO_ALARM_LIGHT, &value);
             printf("gpio set %d => gpio get %d\r\n", cur, value);
 
@@ -47,7 +53,9 @@ void gpio_process()
         }
         else
         {
+            /* 输出高电平 */
             IoTGpioSetOutputVal(GPIO_ALARM_LIGHT, IOT_GPIO_VALUE1);
+            /* 获取电平 */
             IoTGpioGetOutputVal(GPIO_ALARM_LIGHT, &value);
             printf("gpio set %d => gpio get %d\r\n", cur, value);
 
@@ -57,7 +65,9 @@ void gpio_process()
         LOS_Msleep(5000);
 
         printf("Read GPIO\r\n");
+        /* 设置GPIO为输出模式 */
         IoTGpioSetDir(GPIO_ALARM_LIGHT, IOT_GPIO_DIR_IN);
+        /* 获取电平 */
         IoTGpioGetInputVal(GPIO_ALARM_LIGHT, &value);
         printf("gpio get %d\r\n", value);
         /* 睡眠5秒 */

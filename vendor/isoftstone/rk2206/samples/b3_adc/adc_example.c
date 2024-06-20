@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights reserved.
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +19,7 @@
 #include "iot_adc.h"
 #include "iot_errno.h"
 
+/* 按键对应ADC通道 */
 #define KEY_ADC_CHANNEL 7
 
 /***************************************************************
@@ -31,6 +32,7 @@ static unsigned int adc_dev_init()
 {
     unsigned int ret = 0;
 
+    /* 初始化ADC */
     ret = IoTAdcInit(KEY_ADC_CHANNEL);
 
     if(ret != IOT_SUCCESS)
@@ -52,6 +54,7 @@ static float adc_get_voltage()
     unsigned int ret = IOT_SUCCESS;
     unsigned int data = 0;
 
+    /* 获取ADC值 */
     ret = IoTAdcGetVal(KEY_ADC_CHANNEL, &data);
 
     if (ret != IOT_SUCCESS)

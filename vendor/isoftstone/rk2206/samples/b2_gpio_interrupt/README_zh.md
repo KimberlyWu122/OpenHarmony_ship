@@ -2,16 +2,18 @@
 
 本示例将演示如何在通晓开发板上使用GPIO做输入输出操作。
 
-![通晓开发板-RK2206](/vendor/lockzhiner/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
+![通晓开发板-RK2206](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
+
+## 实验设计
 
 ### 硬件设计
 
-![报警灯硬件](/vendor/lockzhiner/rk2206/docs/figures/gpio_interrupt/人体感应硬件.jpg)
+![人体感应传感器原理图](/vendor/isoftstone/rk2206/docs/figures/gpio_interrupt/人体感应传感器原理图.jpg)
 
-![报警灯与开发板连接](/vendor/lockzhiner/rk2206/docs/figures/gpio_interrupt/人体感应与开发板连接.jpg)
+![人体感应与开发板连接](/vendor/isoftstone/rk2206/docs/figures/gpio_interrupt/人体感应与开发板连接.jpg)
 
 从硬件原理图可以知道，GPIO0_A4与传感器连接。
-- 传感器检测到人体，会由低电平上升为高电平。
+- 人体感应传感器检测到人体，会由低电平上升为高电平。
 
 ### 软件设计
 
@@ -20,6 +22,8 @@
 ```c
 #include "iot_gpio.h"
 ```
+
+[gpio接口文档](/device/rockchip/hardware/docs/GPIO.md)
 
 #### GPIO初始化
 
@@ -53,8 +57,8 @@ void gpio_process()
 
     /* 初始化中断触发次数 */
     m_gpio_interrupt_count = 0;
-    /* 开启中断使能 */
-    IoTGpioSetIsrMask(GPIO_BODY_INDUCTION, TRUE);
+    /* 关闭中断屏蔽 */
+    IoTGpioSetIsrMask(GPIO_BODY_INDUCTION, FALSE);
 ```
 
 #### GPIO中断响应函数
@@ -88,13 +92,13 @@ void gpio_isr_func(void *args)
 
 ### 修改 BUILD.gn 文件
 
-修改 `vendor/lockzhiner/rk2206/sample` 路径下 BUILD.gn 文件，指定 `gpio_interrupt_example` 参与编译。
+修改 `vendor/isoftstone/rk2206/sample` 路径下 BUILD.gn 文件，指定 `gpio_interrupt_example` 参与编译。
 
 ```r
 "./b2_gpio_interrupt:gpio_interrupt_example",
 ```
 
-修改 `device/lockzhiner/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-lgpio_interrupt_example` 参与编译。
+修改 `device/rockchip/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-lgpio_interrupt_example` 参与编译。
 
 ```r
 hardware_LIBS = -lhal_iothardware -lhardware -lgpio_interrupt_example

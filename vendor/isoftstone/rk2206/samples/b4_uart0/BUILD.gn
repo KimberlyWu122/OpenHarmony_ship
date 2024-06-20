@@ -11,15 +11,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-static_library("adc_example") {
+static_library("uart_example") {
     sources = [
-        "adc_example.c",
+        "uart_example.c",
     ]
 
     include_dirs = [
         "//utils/native/lite/include",
-        "//utils/native/lite/hals/file",
+        "include",
         "//base/iot_hardware/peripheral/interfaces/kits",
     ]
 
