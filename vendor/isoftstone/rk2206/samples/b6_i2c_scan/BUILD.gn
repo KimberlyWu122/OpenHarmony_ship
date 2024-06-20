@@ -11,14 +11,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/lite/config/component/lite_component.gni")
 
-static_library("hal_token_static") {
-  sources = [ "hal_token.c" ]
+static_library("i2c_scan_example") {
+    sources = [
+        "i2c_scan_example.c",
+    ]
 
-  include_dirs = [
-    "//base/startup/syspara_lite/hals",
-    "//utils/native/lite/include",
-  ]
-  deps = []
+    include_dirs = [
+        "//utils/native/lite/include",
+        "include",
+        "//base/iot_hardware/peripheral/interfaces/kits",
+    ]
+
+    deps = [
+        "//device/rockchip/hardware:hardware",
+    ]
 }

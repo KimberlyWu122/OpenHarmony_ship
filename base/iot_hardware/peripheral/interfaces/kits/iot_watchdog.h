@@ -46,7 +46,7 @@
  * @since 2.2
  * @version 2.2
  */
-void IoTWatchDogEnable(void);
+void IoTWatchDogEnable(unsigned int sec);
 
 /**
  * @brief Feeds a watchdog.

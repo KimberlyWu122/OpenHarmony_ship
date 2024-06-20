@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights reserved.
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,9 +30,9 @@ static const char OHOS_ABI_LIST[] = {"****"};
 static const char OHOS_SERIAL[] = {"1234567890"};  // provided by OEM.
 static const int OHOS_FIRST_API_VERSION = 1;
 
-static const char INCREMENTAL_VERSION[] = "lz-V1.0";
+static const char INCREMENTAL_VERSION[] = "rt-V1.0";
 static const char BUILD_TYPE[] = "V1.0";
-static const char BUILD_USER[] = "lockzhiner";
+static const char BUILD_USER[] = "isoftstone";
 static const char BUILD_HOST[] = "ubuntu20.3";
 static const char BUILD_TIME[64];
 

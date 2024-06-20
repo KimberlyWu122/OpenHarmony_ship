@@ -41,6 +41,23 @@
 #ifndef IOT_PWM_H
 #define IOT_PWM_H
 
+/* 定义PWM设备数量 */
+enum EnumPwmDev {
+    EPWMDEV_PWM0_M1 = 0,    /* GPIO_PB4 */
+    EPWMDEV_PWM1_M1,        /* GPIO_PB5 */
+    EPWMDEV_PWM2_M1,        /* GPIO_PB6 */
+    EPWMDEV_PWM0_M0,        /* GPIO_PC0 */
+    EPWMDEV_PWM1_M0,        /* GPIO_PC1 */
+    EPWMDEV_PWM2_M0,        /* GPIO_PC2 */
+    EPWMDEV_PWM3_M0,        /* GPIO_PC3 */
+    EPWMDEV_PWM4_M0,        /* GPIO_PC4 */
+    EPWMDEV_PWM5_M0,        /* GPIO_PC5 */
+    EPWMDEV_PWM6_M0,        /* GPIO_PC6 */
+    EPWMDEV_PWM7_M0,        /* GPIO_PC7 */
+    EPWMDEV_PWM7_M1,        /* GPIO_PD0 */
+    EPWMDEV_MAX
+};
+
 /**
  * @brief Initializes a PWM device.
  *

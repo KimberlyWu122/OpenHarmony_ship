@@ -130,5 +130,17 @@ unsigned int IoTI2cRead(unsigned int id, unsigned short deviceAddr, unsigned cha
  */
 unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate);
 
+/**
+ * @brief Scan I2C device.
+ *
+ * @param id Indicates the I2C device ID.
+ * @param slaveAddr Slave address.
+ * @param slaveAddrLen Slave address length.
+ * @return Return the number of slave addresses.
+ * @since 2.2
+ * @version 2.2
+ */
+unsigned int IoTI2cScan(unsigned int id, unsigned short *slaveAddr, unsigned int slaveAddrLen);
+
 #endif
 /** @} */

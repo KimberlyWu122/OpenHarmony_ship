@@ -41,6 +41,16 @@
 #ifndef IOT_UART_H
 #define IOT_UART_H
 
+/* 定义UART设备数量 */
+enum EnumUartId {
+  EUART1_M1 = 0, /* RX GPIO0_PA6 TX GPIO0_PA7 */
+  EUART2_M1,     /* RX GPIO0_PB2 TX GPIO0_PB3 */
+  EUART0_M0,     /* RX GPIO0_PB6 TX GPIO0_PB7 */
+  EUART1_M0,     /* RX GPIO0_PC2 TX GPIO0_PC3 */
+  EUART0_M1,     /* RX GPIO0_PC6 TX GPIO0_PC7 */
+  EUARTDEV_MAX
+};
+
 /**
  * @brief Enumerates the number of UART data bits.
  *
