@@ -4,7 +4,7 @@
 
 注意：本样例专门创建任务，使用FiFo接收串口数据，是为了保证UART2接收到完整数据。
 
-![小凌派-RK2206开发板](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
+![通晓开发板](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
 
 ## 实验设计
 
