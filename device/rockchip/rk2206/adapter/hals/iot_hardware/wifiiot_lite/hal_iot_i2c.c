@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights
- * reserved. Licensed under the Apache License, Version 2.0 (the "License"); you
- * may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -231,16 +231,15 @@ unsigned int IoTI2cInit(unsigned int id, unsigned int baudrate) {
     return IOT_FAILURE;
   }
 
-  switch(baudrate)
-  {
-    case EI2C_FRE_100K:
-      fre = 100000;
+  switch (baudrate) {
+  case EI2C_FRE_100K:
+    fre = 100000;
     break;
-    case EI2C_FRE_400K:
-      fre = 400000;
+  case EI2C_FRE_400K:
+    fre = 400000;
     break;
-    case EI2C_FRE_1000K:
-      fre = 1000000;
+  case EI2C_FRE_1000K:
+    fre = 1000000;
     break;
   }
 
@@ -279,21 +278,25 @@ unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate) {
   unsigned int ret = 0;
   unsigned int fre = 100000;
 
+  if (id >= EI2CDEV_MAX) {
+    PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
+    return IOT_FAILURE;
+  }
+
   if (baudrate >= EI2C_FRE_MAX) {
     PRINT_ERR("baudrate(%d) >= EI2C_FRE_MAX(%d)\n", baudrate, EI2C_FRE_MAX);
     return IOT_FAILURE;
   }
 
-  switch(baudrate)
-  {
-    case EI2C_FRE_100K:
-      fre = 100000;
+  switch (baudrate) {
+  case EI2C_FRE_100K:
+    fre = 100000;
     break;
-    case EI2C_FRE_400K:
-      fre = 400000;
+  case EI2C_FRE_400K:
+    fre = 400000;
     break;
-    case EI2C_FRE_1000K:
-      fre = 1000000;
+  case EI2C_FRE_1000K:
+    fre = 1000000;
     break;
   }
 
@@ -303,4 +306,18 @@ unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate) {
   }
 
   return IOT_SUCCESS;
+}
+
+unsigned int IoTI2cScan(unsigned int id, unsigned short *slaveAddr,
+                        unsigned int slaveAddrLen) {
+  unsigned int i2c_dev_num = 0;
+
+  if (id >= EI2CDEV_MAX) {
+    PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
+    return IOT_FAILURE;
+  }
+
+  i2c_dev_num = LzI2cScan(m_i2c_bus_info[id].id, slaveAddr, slaveAddrLen);
+
+  return i2c_dev_num;
 }

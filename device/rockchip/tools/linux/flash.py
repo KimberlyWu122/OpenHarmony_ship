@@ -12,7 +12,7 @@ import math
 import getopt
 
 chip = 'rk2206'
-board = 'lockzhiner-rk2206'
+board = 'isoftstone-rk2206'
 
 class FlashTool:
     def __init__(self, chip, board):

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights reserved.
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -197,16 +197,16 @@ unsigned int IoTGpioSetIsrMask(unsigned int id, unsigned char mask)
         return IOT_FAILURE;
     }
 
-    if (mask)
+    if (!mask)
     {
-        ret = LzGpioDisableIsr(id);
+        ret = LzGpioEnableIsr(id);
         if (ret != LZ_HARDWARE_SUCCESS) {
             return IOT_FAILURE;
         } 
     }
     else
     {
-        ret = LzGpioEnableIsr(id);
+        ret = LzGpioDisableIsr(id);
         if (ret != LZ_HARDWARE_SUCCESS) {
             return IOT_FAILURE;
         } 

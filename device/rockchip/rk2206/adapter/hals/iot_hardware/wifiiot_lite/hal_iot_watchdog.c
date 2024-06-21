@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights reserved.
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,12 +18,16 @@
 #include "iot_watchdog.h"
 #include "lz_hardware.h"
 
-void IoTWatchDogEnable(void)
+void IoTWatchDogEnable(unsigned int sec)
 {
+    LzWatchdogInit();
+    LzWatchdogSetTimeout(sec);
+    LzWatchdogStart(LZ_WATCHDOG_REBOOT_MODE_FIRST);
 }
 
 void IoTWatchDogKick(void)
 {
+    LzWatchdogKeepAlive();
 }
 
 void IoTWatchDogDisable(void)

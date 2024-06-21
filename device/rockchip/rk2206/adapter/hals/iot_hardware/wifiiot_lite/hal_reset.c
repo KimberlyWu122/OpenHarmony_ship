@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights reserved.
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,13 +16,11 @@
 
 #include "iot_errno.h"
 #include "reset.h"
-#include "lz_hardware.h"
+#include "iot_watchdog.h"
 
 void RebootDevice(unsigned int cause)
 {
     printf("RebootDevice: restart!\n");
-    LzWatchdogInit();
-    LzWatchdogSetTimeout(1);
-    LzWatchdogStart(LZ_WATCHDOG_REBOOT_MODE_FIRST);
+    IoTWatchDogEnable(1);
     LOS_Msleep(2000);
 }

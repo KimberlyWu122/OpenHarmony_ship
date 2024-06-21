@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 FuZhou Lockzhiner Electronic Co., Ltd. All rights reserved.
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,22 +15,6 @@
 #include "iot_errno.h"
 #include "iot_pwm.h"
 #include "lz_hardware.h"
-
-/* 定义PWM设备数量 */
-enum EnumPwmDev {
-    EPWMDEV_PWM0_M1 = 0,    /* GPIO_PB4 */
-    EPWMDEV_PWM1_M1,        /* GPIO_PB5 */
-    EPWMDEV_PWM2_M1,        /* GPIO_PB6 */
-    EPWMDEV_PWM0_M0,        /* GPIO_PC0 */
-    EPWMDEV_PWM1_M0,        /* GPIO_PC1 */
-    EPWMDEV_PWM2_M0,        /* GPIO_PC2 */
-    EPWMDEV_PWM3_M0,        /* GPIO_PC3 */
-    EPWMDEV_PWM4_M0,        /* GPIO_PC4 */
-    EPWMDEV_PWM5_M0,        /* GPIO_PC5 */
-    EPWMDEV_PWM6_M0,        /* GPIO_PC6 */
-    EPWMDEV_PWM7_M0,        /* GPIO_PC7 */
-    EPWMDEV_MAX
-};
 
 struct PwmBusInfo {
     unsigned int port;
@@ -193,6 +177,21 @@ static struct PwmBusInfo m_pwm_bus_info[EPWMDEV_MAX] = {
             .pwm = {
                 .gpio = GPIO0_PC7,
                 .func = MUX_FUNC2,
+                .type = PULL_DOWN,
+                .drv = DRIVE_KEEP,
+                .dir = LZGPIO_DIR_KEEP,
+                .val = LZGPIO_LEVEL_LOW
+            },
+            .id  = FUNC_ID_PWM7,
+            .mode = FUNC_MODE_NONE,
+        },
+    },
+    [EPWMDEV_PWM7_M1] = {
+        .port = 7,
+        .pwm_bus = {
+            .pwm = {
+                .gpio = GPIO1_PD0,
+                .func = MUX_FUNC1,
                 .type = PULL_DOWN,
                 .drv = DRIVE_KEEP,
                 .dir = LZGPIO_DIR_KEEP,
