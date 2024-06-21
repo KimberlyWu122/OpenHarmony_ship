@@ -11,21 +11,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//drivers/adapter/khdf/liteos_m/hdf.gni")
 
-static_library("i2c_driver") {
-  sources = [ "i2c_driver_rk2206.c" ]
-  include_dirs = [ 
-    "./",
-    "//device/rockchip/rk2206/adapter/include"
-  ]
+static_library("mpu6050_example") {
+    sources = [
+        "mpu6050_example.c",
+        "src/mpu6050.c",
+    ]
 
-  deps = [
-    "$khdf_path/core:hdf_core",
-    "$khdf_path/osal:hdf_osal_lite",
-    "$khdf_path/platform:hdf_platform_lite",
-  ]
+    include_dirs = [
+        "//utils/native/lite/include",
+        "include",
+        "//base/iot_hardware/peripheral/interfaces/kits",
+    ]
 
-  ldflags = [ "-Wl,--whole-archive" ]
+    deps = [
+        "//device/rockchip/hardware:hardware",
+    ]
 }
-
