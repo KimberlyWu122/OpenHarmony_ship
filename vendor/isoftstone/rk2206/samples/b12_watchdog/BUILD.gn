@@ -19,7 +19,6 @@ static_library("watchdog_example") {
 
     include_dirs = [
         "//utils/native/lite/include",
-        "//device/lockzhiner/rk2206/adapter/include",
         "include",
         "//base/iot_hardware/peripheral/interfaces/kits",
     ]

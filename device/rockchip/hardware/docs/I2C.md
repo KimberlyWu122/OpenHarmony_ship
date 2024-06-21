@@ -18,205 +18,97 @@
 ### 包含头文件： 
 
 ```c
-#include "lz_hardware.h"
+#include "iot_i2c.h"
 ```
 
-#### 1. I2C驱动IO管脚配置：
+#### 1. IoTI2cInit
 
 ```C
-I2cBusIo g_i2c0m0 = {
-    .scl =  {.gpio = GPIO0_PB5, .func = MUX_FUNC4, .type = PULL_NONE, .drv = DRIVE_KEEP, .dir = GPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-    .sda =  {.gpio = GPIO0_PB4, .func = MUX_FUNC4, .type = PULL_NONE, .drv = DRIVE_KEEP, .dir = GPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-    .id = FUNC_ID_I2C0,
-    .mode = FUNC_MODE_M0,
+unsigned int IoTI2cInit(unsigned int id, unsigned int baudrate);
+```
+
+> IoTI2cInit初始化I2C设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| id            | unsigned int        | i2c id号       |
+| baudrate      | unsigned int        | i2c速率        |
+
+```c
+/* 定义I2C速率 */
+enum EnumI2cFre {
+  EI2C_FRE_100K = 0,
+  EI2C_FRE_400K,
+  EI2C_FRE_1000K,
+  EI2C_FRE_MAX,
 };
 ```
+  
+#### 2. IoTI2cDeinit
 
-#### 2. I2C驱动IO管脚初始化接口
-
-```c
-unsigned int I2cIoInit(I2cBusIo io);
-1) 参数说明：
-   io： io引脚相关配置
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+```C
+unsigned int IoTI2cDeinit(unsigned int id);
 ```
 
+> IoTI2cDeinit注销I2C设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
 
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| id            | unsigned int        | i2c id号       |
 
-#### 3.I2C设备初始化接口：
+#### 3. IoTI2cWrite
 
-```c
-unsigned int LzI2cInit(unsigned int id, unsigned int freq)；
-1) 参数说明：
-   id：  i2c总线id
-   freq：i2c频率
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+```C
+unsigned int IoTI2cWrite(unsigned int id, unsigned short deviceAddr, const unsigned char *data, unsigned int dataLen);
 ```
 
-#### 4.I2C设备释放接口：
+> IoTI2cWrite通过I2C写数据。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
 
-```c
-unsigned int LzI2cDeinit(unsigned int id);
-1) 参数说明：
-   id： i2c总线id
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| id            | unsigned int        | i2c id号       |
+| deviceAddr    | unsigned short      | 设备地址       |
+| data          | unsigned char *     | 数据           |
+| dataLen       | unsigned int        | 写入数据长度   |
+
+#### 4. IoTI2cRead
+
+```C
+unsigned int IoTI2cRead(unsigned int id, unsigned short deviceAddr, unsigned char *data, unsigned int dataLen);
 ```
 
-#### 5.I2C设备设置频率：
+> IoTI2cRead通过I2C读数据。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
 
-```c
-unsigned int LzI2cSetFreq(unsigned int id, unsigned int freq);
-1) 参数说明：
-   id：  i2c总线id
-   freq：i2c频率
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| id            | unsigned int        | i2c id号       |
+| deviceAddr    | unsigned short      | 设备地址       |
+| data          | unsigned char *     | 数据           |
+| dataLen       | unsigned int        | 读取数据长度   |
+
+#### 5. IoTI2cSetBaudrate
+
+```C
+unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate);
 ```
 
-#### 6.I2C设备Transfer接口：
+> IoTI2cSetBaudrate设置I2C速率。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
 
-```c
-unsigned int LzI2cTransfer(unsigned id, LzI2cMsg *msgs, unsigned int num);
-1) 参数说明：
-   id：  i2c总线id
-   msgs：需要转发给从设备的消息
-   num:  消息数量
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| id            | unsigned int        | i2c id号       |
+| baudrate      | unsigned int        | i2c速率        |
+
+#### 6. IoTI2cScan
+
+```C
+unsigned int IoTI2cScan(unsigned int id, unsigned short *slaveAddr, unsigned int slaveAddrLen);
 ```
 
-#### 7.I2C设备读接口：
+> IoTI2cScan扫描挂载I2C总线上的设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
 
-```c
-static inline unsigned int LzI2cRead(unsigned int id, unsigned short slaveAddr, unsigned char *data, unsigned int len);
-1) 参数说明：
-   id：       i2c总线id
-   slaveAddr：从机地址
-   data:      需要读取的消息
-   len:       读取消息长度
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码  
-```
-
-#### 8.I2C设备写接口：
-
-```c
-static inline unsigned int LzI2cWrite(unsigned int id, unsigned short slaveAddr, const unsigned char *data, unsigned int len)
-1) 参数说明：
-   id：       i2c总线id
-   slaveAddr：从机地址
-   data:      需要写入的消息
-   len:       写入消息长度
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码  
-```
-
-#### 9.I2C设备读寄存器接口：
-
-```c
-static inline unsigned int LzI2cReadReg(unsigned int id, unsigned short slaveAddr,
-                                      unsigned char *regAddr, unsigned int regLen,
-                                      unsigned char *data, unsigned int len)
-1) 参数说明：
-   id：       i2c总线id
-   slaveAddr：从机地址
-   regAddr:   从机寄存器地址
-   regLen:   从机寄存器地址长度
-   data:      需要写入的消息
-   len:       写入消息长度
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码  
-```
-
-#### 10.I2C设备写寄存器接口：
-
-```c
-static inline unsigned int LzI2cWriteReg(unsigned int id, unsigned short slaveAddr,
-                                       unsigned char *regAddr, unsigned int regLen,
-                                       unsigned char *data, unsigned int len)
-1) 参数说明：
-   id：       i2c总线id
-   slaveAddr：从机地址
-   regAddr:   从机寄存器地址
-   regLen:   从机寄存器地址长度
-   data:      需要写入的消息
-   len:       写入消息长度
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码  
-```
-
-
-
-## 使用实例
-
-```c
-#include "lz_hardware.h"
-
-#定义从机地址
-#define ATH20_ADDR 0x38
-#define I2C1_BUS   1
-
-#io管脚配置
-I2cBusIo g_i2c1m2 = {
-    .scl =  {.gpio = GPIO0_PA3, .func = MUX_FUNC3, .type = PULL_NONE, .drv = DRIVE_KEEP, .dir = GPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-    .sda =  {.gpio = GPIO0_PA2, .func = MUX_FUNC3, .type = PULL_NONE, .drv = DRIVE_KEEP, .dir = GPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-    .id = FUNC_ID_I2C1,
-    .mode = FUNC_MODE_M2,
-};
-
-unsigned int g_i2c1_freq = 400000;
-
-unsigned int i2c_sample()
-{
-    uint32_t ret = LZ_HARDWARE_SUCCESS;
-    uint8_t buff[6];
-    int32_t len = 6;
-    #初始化I2C
-    if (I2cIoInit(g_i2c1m2) != LZ_HARDWARE_SUCCESS)
-        return LZ_HARDWARE_FAILURE;
-    if (LzI2cInit(I2C1, g_i2c1_freq) != LZ_HARDWARE_SUCCESS)
-        return LZ_HARDWARE_FAILURE;
-    
-    #i2c写数据示例
-    len = 6;
-    buff[0] = 0xAC;
-    buff[1] = 0x33;
-    buff[2] = 0x00;
-    len = 3;
-    ret = LzI2cWrite(I2C1_BUS, ATH20_ADDR, buff, len);
-    if (ret < 0)
-    {
-        return LZ_HARDWARE_FAILURE;
-    }
-	
-    #
-    ToyUdelay(75);
-
-    len = 0;
-    ret = LzI2cWrite(I2C1_BUS, ATH20_ADDR, buff, len);
-    if (ret < 0)
-    {
-        return LZ_HARDWARE_FAILURE;
-    }
-
-	#i2c读取数据示例
-    buff[0] = 0x00;
-    buff[1] = 0x00;
-    buff[2] = 0x00;
-    len = 6;
-    ret = LzI2cRead(I2C1_BUS, ATH20_ADDR, buff, len);
-    if (ret < 0)
-    {
-        LZ_HARDWARE_LOGE(LOG_FACTORY,"read error:%d",ret);
-        return LZ_HARDWARE_FAILURE;
-    }
-    
-    return LZ_HARDWARE_SUCCESS;
-}
-
-
-```
-
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| id            | unsigned int        | i2c id号       |
+| slaveAddr     | unsigned short *    | 从机地址       |
+| slaveAddrLen  | unsigned int        | 从机地址长度   |

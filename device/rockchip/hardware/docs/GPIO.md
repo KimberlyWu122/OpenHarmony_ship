@@ -15,146 +15,226 @@
 ### 包含头文件：
 
 ```c
-#include "lz_hardware.h"
+#include "iot_gpio.h"
 ```
 
-#### 1. GPIO初始化接口
+#### 1. IoTGpioInit
 
 ```c
-unsigned int LzGpioInit(GpioID id);
-1) 参数说明：
-   id： Gpio管脚id
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioInit(unsigned int id);
 ```
 
-#### 2. GPIO设备释放接口：
+> IoTGpioInit初始化GPIO设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type       | Description    |
+| ------------- | --------------- | -------------- |
+| id            | unsigned int    | gpio id号      |
+
+#### 2. IoTGpioDeinit
 
 ```c
-unsigned int LzGpioDeinit(GpioID id);
-1) 参数说明：
-   id： Gpio管脚id
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioDeinit(unsigned int id);
 ```
 
-#### 3.GPIO设备配置管脚方向：
+> IoTGpioDeinit释放GPIO设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type       | Description    |
+| ------------- | --------------- | -------------- |
+| id            | unsigned int    | gpio id号      |
+
+#### 3.IoTGpioSetDir
 
 ```c
-unsigned int LzGpioSetDir(GpioID id, LzGpioDir dir);
-1) 参数说明：
-   id：  Gpio管脚id
-   dir： Gpio管脚方向
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioSetDir(unsigned int id, IotGpioDir dir);
 ```
 
-#### 4.GPIO设备获取管脚方向：
+> IoTGpioSetDir配置GPIO方向。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type       | Description    |
+| ------------- | --------------- | -------------- |
+| id            | unsigned int    | gpio id号      |
+| dir           | IotGpioDir      | gpio方向       |
+
+IotGpioDir：
+```c
+/**
+ * @brief Enumerates GPIO directions.
+ */
+typedef enum {
+    /** Input */
+    IOT_GPIO_DIR_IN = 0,
+    /** Output */
+    IOT_GPIO_DIR_OUT
+} IotGpioDir;
+```
+
+#### 4.IoTGpioGetDir
 
 ```c
-unsigned int LzGpioGetDir(GpioID id, LzGpioDir *dir);
-1) 参数说明：
-   id：  Gpio管脚id
-   dir： Gpio管脚方向
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioGetDir(unsigned int id, IotGpioDir *dir);
 ```
 
-#### 5.GPIO设备设置管脚电平值：
+> IoTGpioGetDir获取GPIO方向。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type       | Description    |
+| ------------- | --------------- | -------------- |
+| id            | unsigned int    | gpio id号      |
+| dir           | IotGpioDir      | gpio方向       |
+
+IotGpioDir：
+```c
+/**
+ * @brief Enumerates GPIO directions.
+ */
+typedef enum {
+    /** Input */
+    IOT_GPIO_DIR_IN = 0,
+    /** Output */
+    IOT_GPIO_DIR_OUT
+} IotGpioDir;
+```
+
+#### 5.IoTGpioSetOutputVal
 
 ```c
-unsigned int LzGpioSetVal(GpioID id, LzGpioValue val);
-1) 参数说明：
-   id：  Gpio管脚id
-   val： Gpio管脚电平值
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioSetOutputVal(unsigned int id, IotGpioValue val);
 ```
 
-#### 6.GPIO设备获取管脚电平值：
+> IoTGpioSetOutputVal设置GPIO输出电平。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type       | Description    |
+| ------------- | --------------- | -------------- |
+| id            | unsigned int    | gpio id号      |
+| val           | IotGpioValue    | gpio电平       |
+
+IotGpioValue：
+```c
+/**
+ * @brief Enumerates GPIO level values.
+ */
+typedef enum {
+    /** Low GPIO level */
+    IOT_GPIO_VALUE0 = 0,
+    /** High GPIO level */
+    IOT_GPIO_VALUE1
+} IotGpioValue;
+```
+
+#### 6.IoTGpioGetOutputVal
 
 ```c
-unsigned int LzGpioGetVal(GpioID id, LzGpioValue *val);
-1) 参数说明：
-   id：  Gpio管脚id
-   val： Gpio管脚电平值
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioGetOutputVal(unsigned int id, IotGpioValue *val);
 ```
 
-#### 7.GPIO设备注册管脚中断函数：
+> IoTGpioSetOutputVal获取GPIO输出电平。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type       | Description    |
+| ------------- | --------------- | -------------- |
+| id            | unsigned int    | gpio id号      |
+| val           | IotGpioValue *  | gpio电平       |
+
+IotGpioValue：
+```c
+/**
+ * @brief Enumerates GPIO level values.
+ */
+typedef enum {
+    /** Low GPIO level */
+    IOT_GPIO_VALUE0 = 0,
+    /** High GPIO level */
+    IOT_GPIO_VALUE1
+} IotGpioValue;
+```
+
+#### 7.IoTGpioGetInputVal
 
 ```c
-unsigned int LzGpioRegisterIsrFunc(GpioID id, LzGpioIntType type, GpioIsrFunc func, void *arg);
-1) 参数说明：
-   id：       Gpio管脚id
-   type：	 Gpio中断类型
-   func:      Gpio中断函数
-   arg:       Gpio中断函数参数
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioGetInputVal(unsigned int id, IotGpioValue *val);
 ```
 
-#### 8.GPIO设备注销管脚中断函数：
+> IoTGpioSetOutputVal获取GPIO输入电平。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type       | Description    |
+| ------------- | --------------- | -------------- |
+| id            | unsigned int    | gpio id号      |
+| val           | IotGpioValue *  | gpio电平       |
+
+IotGpioValue：
+```c
+/**
+ * @brief Enumerates GPIO level values.
+ */
+typedef enum {
+    /** Low GPIO level */
+    IOT_GPIO_VALUE0 = 0,
+    /** High GPIO level */
+    IOT_GPIO_VALUE1
+} IotGpioValue;
+```
+
+#### 8.IoTGpioRegisterIsrFunc
 
 ```c
-unsigned int LzGpioUnregisterIsrFunc(GpioID id);
-1) 参数说明：
-   id：       Gpio管脚id
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioRegisterIsrFunc(unsigned int id, IotGpioIntType intType, IotGpioIntPolarity intPolarity, GpioIsrCallbackFunc func, char *arg);
 ```
 
-#### 9.GPIO设备使能管脚中断：
+> IoTGpioRegisterIsrFunc注册gpio中断。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type            | Description      |
+| ------------- | -------------------- | ---------------- |
+| id            | unsigned int         | gpio id号        |
+| intType       | IotGpioIntType       | 中断类型         |
+| intPolarity   | IotGpioIntPolarity   | 中断极性         |
+| func          | GpioIsrCallbackFunc  | 中断回调函数     |
+| arg           | char *               | 中断回调函数参数 |
+
+IotGpioIntType:
+```c
+/**
+ * @brief Enumerates GPIO interrupt trigger modes.
+ */
+typedef enum {
+    /** Level-sensitive interrupt */
+    IOT_INT_TYPE_LEVEL = 0,
+    /** Edge-sensitive interrupt */
+    IOT_INT_TYPE_EDGE
+} IotGpioIntType;
+```
+
+IotGpioIntPolarity:
+```c
+/**
+ * @brief Enumerates I/O interrupt polarities.
+ */
+typedef enum {
+    /** Interrupt at a low level or falling edge */
+    IOT_GPIO_EDGE_FALL_LEVEL_LOW = 0,
+    /** Interrupt at a high level or rising edge */
+    IOT_GPIO_EDGE_RISE_LEVEL_HIGH
+} IotGpioIntPolarity;
+```
+
+#### 9.IoTGpioUnregisterIsrFunc
 
 ```c
-unsigned int LzGpioEnableIsr(GpioID id);
-1) 参数说明：
-   id：       Gpio管脚id
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioUnregisterIsrFunc(unsigned int id);
 ```
 
-#### 10.GPIO设备关闭管脚中断：
+> IoTGpioRegisterIsrFunc注销gpio中断。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type            | Description      |
+| ------------- | -------------------- | ---------------- |
+| id            | unsigned int         | gpio id号        |
+
+#### 10.IoTGpioSetIsrMask
 
 ```c
-unsigned int LzGpioDisableIsr(GpioID id);
-1) 参数说明：
-   id：       Gpio管脚id
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTGpioSetIsrMask(unsigned int id, unsigned char mask);
 ```
 
-## 使用实例
+> IoTGpioSetIsrMask屏蔽gpio中断。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
 
-```c
-#include "lz_hardware.h"
-
-#定义从机地址
-#define TEST_GPIO   GPIO0_PC6
-
-void GpioIrqFunc()
-{
-    printf("enter GpioIrqFunc\n");
-}
-
-unsigned int gpio_sample()
-{
-    unsigned int ret = LZ_HARDWARE_SUCCESS;
-    uint16_t val = 0;
-    if (LzGpioInit(TEST_GPIO) != LZ_HARDWARE_SUCCESS)
-        return LZ_HARDWARE_FAILURE;
-    //设置GPIO管脚为输入
-    ret = LzGpioSetDir(TEST_GPIO, LZGPIO_DIR_IN);  //input
-    //拉高GPIO管脚电平值
-    ret = LzGpioSetVal(TEST_GPIO, LZGPIO_LEVEL_HIGH);
-    //注册Gpio中断,设置Gpio管脚中断为下降沿触发
-    LzGpioRegisterIsrFunc(TEST_GPIO, LZGPIO_INT_EDGE_FALLING, GpioIrqFunc, NULL);
-    //拉低GPIO管脚电平值
-    ret = LzGpioSetVal(TEST_GPIO, LZGPIO_LEVEL_LOW);
-    //获取GPIO管脚电平值
-    ret = LzGpioGetVal(TEST_GPIO, &val);
-    return LZ_HARDWARE_SUCCESS;
-}
-```
-
+| Parameters(T) | Data Type            | Description           |
+| ------------- | -------------------- | --------------------- |
+| id            | unsigned int         | gpio id号             |
+| mask          | unsigned char        | 0:开启中断 1:屏蔽中断 |

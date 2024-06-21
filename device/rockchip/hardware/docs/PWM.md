@@ -13,108 +13,60 @@
 
   PWM频率越大，响应越快，
 
-  
-
 ## 接口说明
 
 ### 包含头文件： 
 
 ```c
-#include "lz_hardware.h"
+#include "iot_pwm.h"
 ```
 
-#### 1. PWM设备IO初始化
+#### 1. IoTPwmInit
 
 ```c
-unsigned int PwmIoInit(PwmBusIo io);
-1) 参数说明：
-   io：  PWM设备io配置
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTPwmInit(unsigned int port);
 ```
 
+> IoTPwmInit初始化PWM设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
 
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| port          | unsigned int        | pwm端口号      |
 
-#### 2. PWM设备初始化接口
+#### 2. IoTPwmDeinit
 
 ```c
-unsigned int LzPwmInit(unsigned int port);
-1) 参数说明：
-   port：  PWM设备id
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTPwmDeinit(unsigned int port);
 ```
 
-#### 3. PWM设备释放接口
+> IoTPwmDeinit注销PWM设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| port          | unsigned int        | pwm端口号      |
+
+#### 3. IoTPwmStart
 
 ```c
-unsigned int LzPwmDeinit(unsigned int port);
-1) 参数说明：
-   port：  PWM设备id
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTPwmStart(unsigned int port, unsigned short duty, unsigned int freq);
 ```
 
-#### 4. PWM设备启动接口：
+> IoTPwmStart开启PWM设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| port          | unsigned int        | pwm端口号      |
+| duty          | unsigned short      | pwm占空比      |
+| freq          | unsigned int        | pwm频率        |
+
+#### 4. IoTPwmStop
 
 ```c
-unsigned int LzPwmStart(unsigned int port, unsigned int duty, unsigned int cycle);
-1) 参数说明：
-   port：  PWM设备id
-   duty:  脉宽时间/高电平时间(ns)
-   cycle:  总周期时长(ns)
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTPwmStop(unsigned int port);
 ```
 
-#### 5. PWM设备停止接口：
+> IoTPwmStop停止PWM设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
 
-```c
-unsigned int LzPwmStop(unsigned int port);
-1) 参数说明：
-   port：  PWM设备id
-2) 返回值：
-   成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
-```
-
-
-
-## 使用实例
-
-```c
-#include "lz_hardware.h"
-
-#define BUZZER_IO 3
-
-PwmBusIo g_buzzer  = {
-    .pwm = {.gpio = GPIO0_PC3, .func = MUX_FUNC2, .type = PULL_DOWN, .drv = DRIVE_KEEP, .dir = GPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-    .id = FUNC_ID_PWM3,
-    .mode = FUNC_MODE_NONE,
-};
-
-
-
-unsigned int pwm_sample()
-{
-    unsigned int ret = LZ_HARDWARE_SUCCESS;
-    //初始化pwm
-    if (PwmIoInit(g_buzzer) != LZ_HARDWARE_SUCCESS)
-        return LZ_HARDWARE_FAILURE;
-    if (LzPwmInit(BUZZER_IO) != LZ_HARDWARE_SUCCESS)
-        return LZ_HARDWARE_FAILURE;
-
-    //启动pwm控制蜂鸣器，响铃3秒
-    LzPwmStart(BUZZER_IO, 160000, 200000);
-    ToyMsleep(3000);
-    //关闭蜂鸣器
-    LzPwmStop(BUZZER_IO);
-    
-    if (LzPwmDeinit(BUZZER_IO) != LZ_HARDWARE_SUCCESS)
-        return LZ_HARDWARE_FAILURE;
-    
-    return LZ_HARDWARE_SUCCESS;
-}
-
-
-```
-
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| port          | unsigned int        | pwm端口号      |

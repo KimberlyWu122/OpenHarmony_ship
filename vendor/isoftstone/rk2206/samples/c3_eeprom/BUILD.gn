@@ -11,22 +11,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//drivers/adapter/khdf/liteos_m/hdf.gni")
-import("//device/rockchip/rk2206/sdk_liteos/board.gni")
 
-action("hardware") {
-    script = "//build/lite/run_shell_cmd.py"
+static_library("eeprom_example") {
     sources = [
-        "libhardware.a",
+        "eeprom_example.c",
+        "src/eeprom.c",
     ]
-    outputs = [
-        "${root_out_dir}/libs/",
+
+    include_dirs = [
+        "//utils/native/lite/include",
+        "include",
+        "//base/iot_hardware/peripheral/interfaces/kits",
     ]
-    args = [
-        "cp",
-        "-f",
-        rebase_path(sources[0]),
-        rebase_path(outputs[0]),
+
+    deps = [
+        "//device/rockchip/hardware:hardware",
     ]
 }
-

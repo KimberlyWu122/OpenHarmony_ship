@@ -15,126 +15,91 @@
 ### 包含头文件： 
 
 ```c
-#include "lz_hardware.h"
+#include "iot_uart.h"
 ```
 
-#### 1. UART设备初始化接口
+#### 1. IoTUartInit
 
 ```c
-unsigned int UartIoInit(UartBusIo io);
-1) 参数说明：
-    io：  UART设备IO管脚配置
-2) 返回值：
-    成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTUartInit(unsigned int id, const IotUartAttribute *param);
 ```
 
-#### 2. UART设备初始化接口
+> IoTUartInit初始化UART设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| id            | unsigned int        | uart id号      |
+| param         | IotUartAttribute *  | uart配置       |
+
+#### 2. IoTUartDeinit
 
 ```c
-unsigned int LzUartInit(unsigned int id, UartAttribute *param);
-1) 参数说明：
-    id：  UART总线id
-    param：UART配置信息
-2) 返回值：
-    成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+unsigned int IoTUartDeinit(unsigned int id);
 ```
 
-#### 3. UART设备释放接口：
+> IoTUartDeinit注销UART设备。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
+
+| Parameters(T) | Data Type           | Description    |
+| ------------- | ------------------- | -------------- |
+| id            | unsigned int        | uart id号      |
+
+#### 3. IoTUartRead
 
 ```c
-unsigned int LzUartDeinit(unsigned int id);
-1) 参数说明：
-    id：UART总线id
-2) 返回值：
-    成功返回LZ_HARDWARE_SUCCESS, 出错返回错误码
+int IoTUartRead(unsigned int id, unsigned char *data, unsigned int dataLen);
 ```
 
-#### 4. UART写数据：
+> IoTUartRead读取串口数据。放回数据长度。
+
+| Parameters(T) | Data Type           | Description  |
+| ------------- | ------------------- | ------------ |
+| id            | unsigned int        | uart id号    |
+| data          | unsigned char *     | 数据         |
+| dataLen       | unsigned int        | 读取数据长度 |
+
+#### 4. IoTUartWrite
 
 ```c
-unsigned int LzUartWrite(unsigned int id, const unsigned char *data, unsigned int dataLen);
-1) 参数说明：
-    id：      UART总线id
-    data:     写入数据
-    dataLen:  写入数据长度
-2) 返回值：
-    成功返回写入长度 失败返回 0
+int IoTUartWrite(unsigned int id, const unsigned char *data, unsigned int dataLen);
 ```
 
-#### 5. UART读数据：
+> IoTUartWrite读取串口数据。放回数据长度。
+
+| Parameters(T) | Data Type           | Description  |
+| ------------- | ------------------- | ------------ |
+| id            | unsigned int        | uart id号    |
+| data          | unsigned char *     | 数据         |
+| dataLen       | unsigned int        | 写入数据长度 |
+
+#### 5. IoTUartSetFlowCtrl
 
 ```c
-unsigned int LzUartRead(unsigned int id, unsigned char *data, unsigned int dataLen);
-1) 参数说明：
-    id：      UART总线id
-    data:     写入数据
-    dataLen:  写入数据长度
-2) 返回值：
-    成功返回读取长度, 失败返回 0
+unsigned int IoTUartSetFlowCtrl(unsigned int id, IotFlowCtrl flowCtrl);
 ```
 
-####  
+> IoTUartSetFlowCtrl设置UART流控。成功返回IOT_SUCCESS，否则返回IOT_FAILURE。
 
+| Parameters(T) | Data Type           | Description  |
+| ------------- | ------------------- | ------------ |
+| id            | unsigned int        | uart id号    |
+| flowCtrl      | IotFlowCtrl         | 流控参数     |
 
-## 使用实例
-
+IotFlowCtrl:
 ```c
-#include "lz_hardware.h"
-#define UART_TAG "UART0"
-
-#define UART_ID   0
-UartBusIo g_uart0m0 = {
-    .rx   = {.gpio = GPIO0_PB6,    .func = MUX_FUNC2, .type = PULL_KEEP, .drv = DRIVE_KEEP, .dir = LZGPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-    .tx   = {.gpio = GPIO0_PB7,    .func = MUX_FUNC2, .type = PULL_KEEP, .drv = DRIVE_KEEP, .dir = LZGPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-    .ctsn = {.gpio = INVALID_GPIO, .func = MUX_FUNC4, .type = PULL_UP,   .drv = DRIVE_KEEP, .dir = LZGPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-    .rtsn = {.gpio = INVALID_GPIO, .func = MUX_FUNC4, .type = PULL_UP,   .drv = DRIVE_KEEP, .dir = LZGPIO_DIR_KEEP, .val = LZGPIO_LEVEL_KEEP},
-    .id = FUNC_ID_UART0,
-    .mode = FUNC_MODE_NONE,
-};
-
-UartAttribute g_uart0attr = {
-    .baudRate = 115200, 
-    .dataBits = UART_DATA_BIT_8, 
-    .parity   = UART_PARITY_NONE,
-    .stopBits = UART_STOP_BIT_1, 
-};
-
-unsigned int uart_sample()
-{
-    unsigned int ret = LZ_HARDWARE_SUCCESS;
-    unsigned char buf[128] = {0};
-
-    //初始化uart
-    if (UartIoInit(g_uart0m0) != LZ_HARDWARE_SUCCESS)
-        return LZ_HARDWARE_FAILURE;
-    if (LzUartInit(UART_ID, &g_uart0attr) != LZ_HARDWARE_SUCCESS)
-        return LZ_HARDWARE_FAILURE;
-
-    while(1)
-    {
-        //读取串口数据
-        ret = LzUartRead(UART_ID, buf, 128);
-        if(ret)
-        {
-            LZ_HARDWARE_LOG(UART_TAG, "%s:uart0 read  cnt:%d", __func__, ret);
-            //发送串口数据
-            ret = LzUartWrite(UART_ID, buf, ret);
-            if(ret){
-                LZ_HARDWARE_LOG(UART_TAG, "%s:uart0 write cnt:%d", __func__, ret);
-                break;
-            }
-        }
-        usleep(10000);
-    }
-    if (LzUartDeinit(UART_ID) != LZ_HARDWARE_SUCCESS)
-        return LZ_HARDWARE_FAILURE;
-
-    LzGpioDeinit(g_uart0m0.tx.gpio);
-    LzGpioDeinit(g_uart0m0.rx.gpio);
-
-    return LZ_HARDWARE_SUCCESS;
-}
-
-
+/**
+ * @brief Enumerates hardware flow control modes.
+ *
+ * @since 2.2
+ * @version 2.2
+ */
+typedef enum {
+    /** Hardware flow control disabled */
+    IOT_FLOW_CTRL_NONE,
+    /** RTS and CTS hardware flow control enabled */
+    IOT_FLOW_CTRL_RTS_CTS,
+    /** RTS hardware flow control enabled */
+    IOT_FLOW_CTRL_RTS_ONLY,
+     /** CTS hardware flow control enabled */
+    IOT_FLOW_CTRL_CTS_ONLY,
+} IotFlowCtrl;
 ```
-
