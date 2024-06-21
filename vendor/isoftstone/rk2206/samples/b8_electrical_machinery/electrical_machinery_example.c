@@ -34,6 +34,7 @@ void electrical_machinery_process()
     unsigned int ret;
     unsigned int duty = 10;
 
+    /* 初始化PWM */
     ret = IoTPwmInit(ELECTRICAL_MACHINERY_PORT);
     if (ret != 0) {
         printf("IoTPwmInit failed(%d)\n", ELECTRICAL_MACHINERY_PORT);
@@ -45,6 +46,7 @@ void electrical_machinery_process()
 
         printf("PWM(%d) Start\n", ELECTRICAL_MACHINERY_PORT);
         printf("duty: %d\r\n", duty);
+        /* 开启PWM */
         ret = IoTPwmStart(ELECTRICAL_MACHINERY_PORT, duty, 1000);
         if (ret != 0) {
             printf("IoTPwmStart failed(%d)\n");
@@ -53,6 +55,7 @@ void electrical_machinery_process()
         
         LOS_Msleep(2000);
 
+        /* 关闭PWM */
         ret = IoTPwmStop(ELECTRICAL_MACHINERY_PORT);
         if (ret != 0) {
             printf("IoTPwmStart failed(%d)\n");

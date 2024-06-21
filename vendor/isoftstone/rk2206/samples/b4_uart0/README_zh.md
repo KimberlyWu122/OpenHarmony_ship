@@ -94,7 +94,7 @@ LOS_Msleep(1000);
 
 ### 修改 BUILD.gn 文件
 
-修改 `vendor\lockzhiner\rk2206\sample` 路径下 BUILD.gn 文件，指定 `uart_example` 参与编译。
+修改 `vendor\isoftstone\rk2206\sample` 路径下 BUILD.gn 文件，指定 `uart_example` 参与编译。
 
 ```r
 "./b4_uart0:uart_example",

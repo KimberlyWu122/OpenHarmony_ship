@@ -163,7 +163,7 @@ void uart2_recv_process()
 
 ### 修改 BUILD.gn 文件
 
-修改 `vendor\lockzhiner\rk2206\sample` 路径下 BUILD.gn 文件，指定 `uart2_example` 参与编译。
+修改 `vendor\isoftstone\rk2206\sample` 路径下 BUILD.gn 文件，指定 `uart2_example` 参与编译。
 
 ```r
 "./b5_uart2:uart2_example",
