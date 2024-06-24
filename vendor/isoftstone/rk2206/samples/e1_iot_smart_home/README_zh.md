@@ -1,6 +1,6 @@
-# 通晓开发板综合实验开发——智慧家居
+# 通晓开发板物联网综合实验开发——物联网智慧家居
 
-本例程演示如何在通晓开发板上实现智慧家居应用案例。
+本例程演示如何在通晓开发板上实现物联网智慧家居应用案例。
 
 ## 实验设计
 
@@ -30,13 +30,17 @@
 
 #### 设备初始化
 
-创建两个队列，用于传感器数据分别传输到不同的队列。创建了两个线程，一个用于读数据，一个用于显示与判断设备控制。
+创建两个队列，用于传感器数据分别传输到不同的队列。创建了三个线程，一个用于读数据，一个用于显示与判断设备控制，一个用来。
 
 ```c
+void iot_smart_hone_example()
+{
     unsigned int thread_id_1;
     unsigned int thread_id_2;
+    unsigned int thread_id_3;
     TSK_INIT_PARAM_S task_1 = {0};
     TSK_INIT_PARAM_S task_2 = {0};
+    TSK_INIT_PARAM_S task_3 = {0};
     unsigned int ret = LOS_OK;
 
     ret = LOS_QueueCreate("queue", MSG_QUEUE_LENGTH, &m_msg_queue, 0, BUFFER_LEN);
@@ -74,6 +78,18 @@
         printf("Falied to create task ret:0x%x\n", ret);
         return;
     }
+
+    task_3.pfnTaskEntry = (TSK_ENTRY_FUNC)iot_thread;
+    task_3.uwStackSize = 20480;
+    task_3.pcName = "iot thread";
+    task_3.usTaskPrio = 24;
+    ret = LOS_TaskCreate(&thread_id_3, &task_3);
+    if (ret != LOS_OK)
+    {
+        printf("Falied to create task ret:0x%x\n", ret);
+        return;
+    }
+}
 ```
 
 #### smart_hone_thread线程
@@ -89,6 +105,8 @@ void smart_hone_thread(void *arg)
     double temperature_range = 35.0;
     double humidity_range = 80.0;
 
+    e_iot_data iot_data = {0};
+
     lcd_dev_init();
     motor_dev_init();
     light_dev_init();
@@ -96,7 +114,7 @@ void smart_hone_thread(void *arg)
 
     lcd_load_ui();
 
-    while (1)
+    while(1)
     {
         LOS_QueueRead(m_msg_queue, (void *)&data_ptr, BUFFER_LEN, LOS_WAIT_FOREVER);
 
@@ -141,6 +159,18 @@ void smart_hone_thread(void *arg)
         lcd_set_light_state(light_state);
         lcd_set_motor_state(motor_state);
         lcd_set_auto_state(auto_state);
+
+        if (mqtt_is_connected()) 
+        {
+            // 发送iot数据
+            iot_data.illumination = data_ptr[0];
+            iot_data.temperature = data_ptr[1];
+            iot_data.humidity = data_ptr[2];
+            iot_data.light_state = light_state;
+            iot_data.motor_state = motor_state;
+            iot_data.auto_state = auto_state;
+            send_msg_to_mqtt(&iot_data);
+        }
 
         printf("============= smart home example ==============\n");
         printf("======== data ========\r\n");
@@ -242,7 +272,7 @@ static void su_03t_thread(void *arg)
 
 在`device_read_thraed`线程中初始化i2c传感器设备，将读取的数据放入队列中传输到`smart_hone_thread`与`su_03t_thread`线程中进行数据处理。
 
-```
+```c
 void device_read_thraed(void *arg)
 {
     double read_data[3] = {0};
@@ -257,6 +287,37 @@ void device_read_thraed(void *arg)
         LOS_QueueWrite(m_su03_msg_queue, (void *)&read_data, sizeof(read_data), LOS_WAIT_FOREVER);
         LOS_Msleep(500);
     }
+}
+```
+
+#### iot_thread线程
+
+在`iot_thread`线程中连接WiFi、初始化mqtt协议。
+
+```c
+void iot_thread(void *args) {
+  uint8_t mac_address[6] = {0x00, 0xdc, 0xb6, 0x90, 0x01, 0x00};
+
+  FlashInit();
+  VendorSet(VENDOR_ID_WIFI_MODE, "STA", 3); // 配置为Wifi STA模式
+  VendorSet(VENDOR_ID_MAC, mac_address,
+            6); // 多人同时做该实验，请修改各自不同的WiFi MAC地址
+  VendorSet(VENDOR_ID_WIFI_ROUTE_SSID, ROUTE_SSID, sizeof(ROUTE_SSID));
+  VendorSet(VENDOR_ID_WIFI_ROUTE_PASSWD, ROUTE_PASSWORD,
+            sizeof(ROUTE_PASSWORD));
+
+reconnect:
+  SetWifiModeOff();
+  SetWifiModeOn();
+
+  mqtt_init();
+
+  while (1) {
+    if (!wait_message()) {
+      goto reconnect;
+    }
+    LOS_Msleep(1);
+  }
 }
 ```
 
@@ -386,6 +447,33 @@ if (rec_len != 0)
 }
 ```
 
+#### 云平台
+
+##### 创建云平台项目
+
+点击`创建产品`。创建一个新产品。
+
+![](../../docs/figures/smart_home/云平台-创建产品.jpg)
+
+添加`smart_home`服务。
+
+添加所需要的属性和命令。
+
+![](../../docs/figures/smart_home/云平台-添加服务.jpg)
+
+在`我的设备`中，选择`注册设备`进行设备注册。
+
+![](../../docs/figures/smart_home/云平台-注册设备.jpg)
+
+通晓开发板`iot.c`文件中修改MQTT密钥和ID。
+
+```c
+// 密钥
+#define MQTT_DEVICES_PWD "12345678"
+// id
+#define DEVICE_ID "b1h15jkj0bog-1803239992521130055_rk2206"
+```
+
 ## 编译调试
 
 ### 修改 BUILD.gn 文件
@@ -437,3 +525,7 @@ light_state:0
 motor_state:0
 auto_state:1
 ```
+
+登录通鸿iot平台，显示如下：
+
+![](../../docs/figures/smart_home/云平台-显示.jpg)
