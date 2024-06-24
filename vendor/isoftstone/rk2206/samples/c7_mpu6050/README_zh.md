@@ -1,6 +1,6 @@
 # 通晓开发板基础设备开发——I2C控制MPU6050获取值
 
-本示例将演示如何在通晓开发板上使用I2C控制BH1750获取值
+本示例将演示如何在通晓开发板上使用I2C控制MPU6050获取值
 
 ![通晓开发板](/vendor/isoftstone/rk2206/docs/figures/tx_smart_r-rk2206.jpg)
 
