@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 /*
- * Copyright (c) 2020-2021 Lockzhiner Electronics Co., Ltd.
+ * Copyright (c) 2024 iSoftStone Education Co., Ltd.
  */
 
 #ifndef __SOC_H
