@@ -376,7 +376,7 @@ if (rec_len != 0)
 修改 `vendor/isoftstone/rk2206/sample` 路径下 BUILD.gn 文件，指定 `smart_security_example` 参与编译。
 
 ```r
-"./d2_smart_security:smart_security_example"",
+"./d2_smart_security:smart_security_example",
 ```
 
 修改 `device/rockchip/rk2206/sdk_liteos` 路径下 Makefile 文件，添加 `-lsmart_security_example` 参与编译。
