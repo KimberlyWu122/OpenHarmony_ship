@@ -19,21 +19,21 @@
 git clone http://url/isoftstone-rk2206-openharmony3.0lts.git
 ```
 
-## dockor编译
+## docker编译
 
-### dockor安装
+### docker安装
 
 ```shell
 sudo apt install docker.io
 ```
 
-### 下载dockor镜像
+### 下载docker镜像
 
 ```shell
 sudo docker pull swr.cn-south-1.myhuaweicloud.com/openharmony-docker/openharmony-docker:1.0.0
 ```
 
-### 开启dockor
+### 开启docker
 
 进入到我们刚刚下载的源码目录。
 
@@ -43,7 +43,7 @@ cd isoftstone-rk2206-openharmony3.0lts/
 
 ![](/vendor/isoftstone/rk2206/docs/figures/环境/进入源码目录.jpg)
 
-输入以下命令，创建dockor。
+输入以下命令，创建docker。
 
 ```shell
 sudo docker run -it -v /home/user_name/桌面/isoftstone-rk2206-openharmony3.0lts:/home/openharmony swr.cn-south-1.myhuaweicloud.com/openharmony-docker/openharmony-docker:1.0.0
