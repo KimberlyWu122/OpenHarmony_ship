@@ -1,5 +1,4 @@
 *.pyc
 **/__pycache__
 .idea/
-lite/
 .vscode/
