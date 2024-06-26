@@ -37,7 +37,7 @@
 
 #define BUFF_LEN           256
 
-#define ROUTE_SSID "凌智电子"
+#define ROUTE_SSID "软通教育"
 #define ROUTE_PASSWORD "88888888"
 
 WifiLinkedInfo wifiinfo;

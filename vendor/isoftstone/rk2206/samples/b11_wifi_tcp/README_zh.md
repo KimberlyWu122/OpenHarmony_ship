@@ -7,7 +7,7 @@
 ## WiFi ssid 和密码设置
 
 ```c
-#define ROUTE_SSID "凌智电子"   // WiFi名
+#define ROUTE_SSID "软通教育"   // WiFi名
 #define ROUTE_PASSWORD "88888888"   // WiFi密码
 ```
 
@@ -431,7 +431,7 @@ wifi_tcp_example start ....
 [FLASH:E]FlashInit: id 0, controller has already been initialized
 [config_network:D]rknetwork SetWifiModeOn
 
-[config_network:D]rknetwork g_wificonfig.ssid 凌智电子
+[config_network:D]rknetwork g_wificonfig.ssid 软通教育
 
 [config_network:D]rknetwork g_wificonfig.psk 88888888
 
@@ -444,14 +444,14 @@ wifi_tcp_example start ....
 
 [config_network:D]rknetwork SetWifiScan after g_wificonfig.bssid:
 
-[wifi_api_internal:D]Connect to (SSID=凌智电子)
+[wifi_api_internal:D]Connect to (SSID=软通教育)
 [wifi_api_internal:D]derive psk ...
 [wifi_api_internal:D]derive psk done
 IotProcess: sleep 5 sec!
 [wifi_api_internal:D]recovery process ...
 IotProcess: sleep 5 sec!
 [wifi_api_internal:D]AP BSSID (30:5f:77:80:80:b0)
-[config_network:I]ConnectTo (凌智电子) done
+[config_network:I]ConnectTo (软通教育) done
 [config_network:D]rknetwork IP (192.168.2.30)
 [config_network:D]network GW (192.168.2.1)
 [config_network:D]network NETMASK (255.255.255.0)

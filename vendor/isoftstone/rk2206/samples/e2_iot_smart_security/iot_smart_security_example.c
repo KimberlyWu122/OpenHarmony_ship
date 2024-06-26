@@ -25,7 +25,7 @@
 #include "su_03t.h"
 #include "iot.h"
 
-#define ROUTE_SSID "凌智电子"
+#define ROUTE_SSID "软通教育"
 #define ROUTE_PASSWORD "88888888"
 
 #define MSG_QUEUE_LENGTH                                16

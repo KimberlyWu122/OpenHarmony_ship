@@ -1,0 +1,5 @@
+ohos_config.json
+out/
+prebuilts/
+.vscode/
+third_party/jsframework/

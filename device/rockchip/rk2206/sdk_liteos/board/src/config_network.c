@@ -50,11 +50,11 @@ extern "C" {
 // 该处为Wifi模式默认的SSID和密码，即Flash如为空，则填写默认
 // 如需要修改，请直接调用set_wifi_config_route_ssid()和set_wifi_config_route_passwd()函数
 // 如需要修改，可以TaskConfigWifiModeEntry()启用上述2个函数
-#define ROUTE_SSID              "凌智电子"
+#define ROUTE_SSID              "软通教育"
 #define ROUTE_PASSWORD          "88888888"
 // 该处为AP模式的默认SSID和密码，即Flash如为空，则填写默认
 // 如需要修改，请直接调用set_wifi_config_ssid()和set_wifi_config_passwd()函数
-#define AP_SSID                 "凌智电子"
+#define AP_SSID                 "软通教育"
 #define AP_PASSWORD             "88888888"
 
 
@@ -650,7 +650,7 @@ static void TaskConfigApModeEntry()
 static void TaskConfigWifiModeEntry()
 {
     // 如果需要修改Wifi的SSID和密码，可以在此启用下述接口
-    set_wifi_config_route_ssid(printf,   "凌智电子");     // 路由的WiFi名称
+    set_wifi_config_route_ssid(printf,   "软通教育");     // 路由的WiFi名称
     set_wifi_config_route_passwd(printf, "88888888");    // 路由器WiFi密码
 
 init:
