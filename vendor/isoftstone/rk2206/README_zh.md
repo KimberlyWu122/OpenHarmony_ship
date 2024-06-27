@@ -72,3 +72,28 @@ hb build -f
 ```
 
 编译出的目标文件在 out/rk2206/isoftstone-rk2206/images目录下。
+
+## docker基础操作
+
+### 查看已有docker镜像
+
+```shell
+sudo docker container ls -a
+```
+
+### 开启镜像
+
+使用`查看已有docker镜像`获取镜像id。
+
+```shell
+sudo docker start [docker id]
+sudo docker attach [docker id]
+```
+
+### 退出镜像
+
+在镜像中输入以下命令，退出镜像。
+
+```shell
+exit
+```
