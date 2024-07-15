@@ -33,6 +33,8 @@
 #define MSG_QUEUE_LENGTH                                16
 #define BUFFER_LEN                                      50
 
+
+
 extern bool motor_state;
 extern bool light_state;
 extern bool auto_state;
@@ -56,7 +58,7 @@ static void su_03t_thread(void *arg)
     attr.dataBits = IOT_UART_DATA_BIT_8;
     attr.pad = IOT_FLOW_CTRL_NONE;
     attr.parity = IOT_UART_PARITY_NONE;
-    attr.rxBlock = IOT_UART_BLOCK_STATE_NONE_BLOCK;
+    attr.rxBlock = IOT_UART_BLOCK_STATE_BLOCK;
     attr.stopBits = IOT_UART_STOP_BIT_1;
     attr.txBlock = IOT_UART_BLOCK_STATE_NONE_BLOCK;
     
@@ -73,6 +75,12 @@ static void su_03t_thread(void *arg)
         uint8_t rec_len = IoTUartRead(UART2_HANDLE, data, sizeof(data));
 
         LOS_QueueRead(m_su03_msg_queue, (void *)&data_ptr, BUFFER_LEN, LOS_WAIT_FOREVER);
+
+        printf("uart2 read %d  bytes:\n",rec_len);
+        for(int i = 0;i< rec_len;i++){
+            printf("%02x \n",data[i]);
+        }
+        printf("\n");
 
         if (rec_len != 0)
         {

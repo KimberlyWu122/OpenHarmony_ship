@@ -43,7 +43,7 @@ LITE_OS_SEC_TEXT_INIT int Main(void)
     ret = LOS_KernelInit();
     if (ret == LOS_OK) {
         OHOS_SystemInit();
-        IotInit();
+        // IotInit();
         /* 开启驱动管理服务 */
         //DeviceManagerStart();
         //ExternalTaskConfigNetwork();

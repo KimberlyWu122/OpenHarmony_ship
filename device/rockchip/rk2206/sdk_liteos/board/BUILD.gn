@@ -19,7 +19,7 @@ static_library("board") {
       "./startup/startup_rk2206.S",
       "./dprintf.c",
       "./main.c",
-      "./iotmain.c",
+      # "./iotmain.c",
       "./src/config_network.c",
   ]
 

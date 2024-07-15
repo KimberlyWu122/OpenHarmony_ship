@@ -57,6 +57,10 @@ extern "C" {
 #define AP_SSID                 "软通教育"
 #define AP_PASSWORD             "88888888"
 
+#define WIFI_SN         "TX01"
+#define WIFI_FACTORY    "ISSOH"
+#define WIFI_PRODUCT    "TX_SMART_R"
+
 
 STATIC RKWifiConfig g_wificonfig = {0};
 
@@ -86,13 +90,13 @@ void set_default_wifi_config(void)
 {
     FlashInit();         
     uint8_t hwaddr[6]  = {0x10, 0xdc, 0xb6, 0x90, 0x00, 0x00};
-    uint8_t ip[4]      = {192, 168, 2, 10};
+    uint8_t ip[4]      = {192, 168, 2, 1};
     uint8_t gateway[4] = {192, 168, 2, 1};
     uint8_t mask[4]    = {255, 255, 255, 0};
 
-    VendorSet(VENDOR_ID_SN,                "LZ01",         sizeof("LZ01"));
-    VendorSet(VENDOR_ID_PRODUCT,           "小凌派",       sizeof("小凌派"));
-    VendorSet(VENDOR_ID_FACTORY,           "凌睿智捷",     sizeof("凌睿智捷"));
+    VendorSet(VENDOR_ID_SN,                WIFI_SN,         sizeof(WIFI_SN));
+    VendorSet(VENDOR_ID_PRODUCT,           WIFI_PRODUCT,       sizeof(WIFI_PRODUCT));
+    VendorSet(VENDOR_ID_FACTORY,           WIFI_FACTORY,     sizeof(WIFI_FACTORY));
     VendorSet(VENDOR_ID_WIFI_MODE,         "STA",          3);
     VendorSet(VENDOR_ID_MAC,               hwaddr,         6);
     VendorSet(VENDOR_ID_NET_IP,            ip,             4);
@@ -109,9 +113,9 @@ void set_wifi_config(wifi_config_t wifi_config)
 {
     FlashInit();         
 
-    VendorSet(VENDOR_ID_SN,                "LZ01",     sizeof("LZ01"));
-    VendorSet(VENDOR_ID_PRODUCT,           "小凌派",   sizeof("小凌派"));
-    VendorSet(VENDOR_ID_FACTORY,           "凌睿智捷", sizeof("凌睿智捷"));
+    VendorSet(VENDOR_ID_SN,                WIFI_SN,         sizeof(WIFI_SN));
+    VendorSet(VENDOR_ID_PRODUCT,           WIFI_PRODUCT,       sizeof(WIFI_PRODUCT));
+    VendorSet(VENDOR_ID_FACTORY,           WIFI_FACTORY,     sizeof(WIFI_FACTORY));
 
     VendorSet(VENDOR_ID_WIFI_MODE,         wifi_config.mode,           3);
     VendorSet(VENDOR_ID_MAC,               wifi_config.hwaddr,         6);
@@ -350,7 +354,7 @@ WifiErrorCode SetApModeOn()
     if(LZ_HARDWARE_SUCCESS == VendorGet(VENDOR_ID_SN, temp, WIFI_MAX_SN_LEN))
     {
         wifi_config_t wifi_config = {0};
-        if(strcmp(temp, "LZ01") != 0)
+        if(strcmp(temp, "TX01") != 0)
         {
             set_default_wifi_config();
             get_wifi_config(printf, &wifi_config);
@@ -549,7 +553,7 @@ WifiErrorCode SetWifiModeOn()
     if(LZ_HARDWARE_SUCCESS == VendorGet(VENDOR_ID_SN, temp, WIFI_MAX_SN_LEN))
     {
         wifi_config_t wifi_config = {0};
-        if(strcmp(temp, "LZ01") != 0)
+        if(strcmp(temp, WIFI_SN) != 0)
         {
             set_default_wifi_config();
             get_wifi_config(printf, &wifi_config);

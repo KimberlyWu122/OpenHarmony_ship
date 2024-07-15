@@ -98,19 +98,19 @@ void smart_hone_thread(void *arg)
         lcd_set_motor_state(motor_state);
         lcd_set_auto_state(auto_state);
 
-        printf("============= smart home example ==============\n");
-        printf("======== data ========\r\n");
-        printf("illumination:%5.2f\r\n", data_ptr[0]);
-        printf("temperature:%5.2f\r\n", data_ptr[1]);
-        printf("humidity:%5.2f\r\n", data_ptr[2]);
-        printf("======== state ========\r\n");
-        printf("light_state:%d\r\n", light_state);
-        printf("motor_state:%d\r\n", motor_state);
-        printf("auto_state:%d\r\n", auto_state);
+        // printf("============= smart home example ==============\n");
+        // printf("======== data ========\r\n");
+        // printf("illumination:%5.2f\r\n", data_ptr[0]);
+        // printf("temperature:%5.2f\r\n", data_ptr[1]);
+        // printf("humidity:%5.2f\r\n", data_ptr[2]);
+        // printf("======== state ========\r\n");
+        // printf("light_state:%d\r\n", light_state);
+        // printf("motor_state:%d\r\n", motor_state);
+        // printf("auto_state:%d\r\n", auto_state);
 
-        printf("\r\n");
+        // printf("\r\n");
 
-        LOS_Msleep(500);
+        LOS_Msleep(1500);
     }
 }
 
