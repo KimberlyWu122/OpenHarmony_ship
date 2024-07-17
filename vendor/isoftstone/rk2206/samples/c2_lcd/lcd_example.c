@@ -46,19 +46,24 @@ void lcd_process(void *arg)
     {
         printf("************Lcd Example***********\n");
         lcd_show_picture(15, 0, 210, 62, &gImage_isoftstone[0]);
-        lcd_show_string(0, 100, "Welcome to TX-SMART-R!", LCD_RED, LCD_WHITE, 16, 0);
-        lcd_show_string(0, 130, "URL: https://www.issedu.com/", LCD_RED, LCD_WHITE, 16, 0);
-        lcd_show_string(0, 160, "LCD_W:", LCD_BLUE, LCD_WHITE, 16, 0);
-        lcd_show_int_num(48, 160, LCD_W, 3, LCD_BLUE, LCD_WHITE, 16);
-        lcd_show_string(80, 160, "LCD_H:", LCD_BLUE, LCD_WHITE, 16, 0);
-        lcd_show_int_num(128, 160, LCD_H, 3, LCD_BLUE, LCD_WHITE, 16);
-        lcd_show_string(80, 160, "LCD_H:", LCD_BLUE, LCD_WHITE, 16, 0);
-        lcd_show_string(0, 190, "Increaseing Num:", LCD_BLACK, LCD_WHITE, 16, 0);
-        lcd_show_float_num1(128, 190, t, 4, LCD_BLACK, LCD_WHITE, 16);
+        lcd_show_string(0, 70, "Welcome to TX-SMART-R!", LCD_RED, LCD_WHITE, 16, 0);
+        lcd_show_string(0, 88, "URL: https://www.issedu.com/", LCD_RED, LCD_WHITE, 16, 0);
+        
+        lcd_show_picture(15, 120, 32, 32, &gImage_home[0]);
+        lcd_show_picture(50, 120, 32, 32, &gImage_light_off[0]);
+        lcd_show_picture(85, 120, 32, 32, &gImage_fan_off[0]);
+
+        // lcd_show_string(0, 160, "LCD_W:", LCD_BLUE, LCD_WHITE, 16, 0);
+        // lcd_show_int_num(48, 160, LCD_W, 3, LCD_BLUE, LCD_WHITE, 16);
+        // lcd_show_string(80, 160, "LCD_H:", LCD_BLUE, LCD_WHITE, 16, 0);
+        // lcd_show_int_num(128, 160, LCD_H, 3, LCD_BLUE, LCD_WHITE, 16);
+        // lcd_show_string(80, 160, "LCD_H:", LCD_BLUE, LCD_WHITE, 16, 0);
+        // lcd_show_string(0, 190, "Increaseing Num:", LCD_BLACK, LCD_WHITE, 16, 0);
+        // lcd_show_float_num1(128, 190, t, 4, LCD_BLACK, LCD_WHITE, 16);
         t += 0.11;
 
         lcd_fill(0, 220, LCD_W, LCD_H, LCD_WHITE);
-        lcd_show_chinese(0, 220, chinese_string, LCD_RED, LCD_WHITE, cur_sizey, 0);
+        lcd_show_chinese(0, 220, chinese_string, LCD_RED, LCD_GRAYBLUE, cur_sizey, 0);
         if (cur_sizey == 12)
             cur_sizey = 16;
         else if(cur_sizey == 16)

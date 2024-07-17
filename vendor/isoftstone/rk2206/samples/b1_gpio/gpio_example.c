@@ -30,7 +30,6 @@
 void gpio_process()
 {
     unsigned int cur = 0;
-    IotGpioValue value = IOT_GPIO_VALUE0;
 
     /* 初始化GPIO */
     IoTGpioInit(GPIO_ALARM_LIGHT);
@@ -45,33 +44,17 @@ void gpio_process()
         {
             /* 输出低电平 */
             IoTGpioSetOutputVal(GPIO_ALARM_LIGHT, IOT_GPIO_VALUE0);
-            /* 获取电平 */
-            IoTGpioGetOutputVal(GPIO_ALARM_LIGHT, &value);
-            printf("gpio set %d => gpio get %d\r\n", cur, value);
-
             cur = 1;
         }
         else
         {
             /* 输出高电平 */
             IoTGpioSetOutputVal(GPIO_ALARM_LIGHT, IOT_GPIO_VALUE1);
-            /* 获取电平 */
-            IoTGpioGetOutputVal(GPIO_ALARM_LIGHT, &value);
-            printf("gpio set %d => gpio get %d\r\n", cur, value);
-
             cur = 0;
         }
-        /* 睡眠5秒 */
-        LOS_Msleep(5000);
 
-        printf("Read GPIO\r\n");
-        /* 设置GPIO为输出模式 */
-        IoTGpioSetDir(GPIO_ALARM_LIGHT, IOT_GPIO_DIR_IN);
-        /* 获取电平 */
-        IoTGpioGetInputVal(GPIO_ALARM_LIGHT, &value);
-        printf("gpio get %d\r\n", value);
-        /* 睡眠5秒 */
-        LOS_Msleep(5000);
+        /* 睡眠1秒 */
+        LOS_Msleep(1000);
 
         printf("\r\n");
     }

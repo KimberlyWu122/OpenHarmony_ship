@@ -38,6 +38,7 @@ void gpio_isr_func(void *args)
     m_gpio_interrupt_count++;
 }
 
+/* 定义按键按下和未按下变量*/
 #define PRESSED     1
 #define NO_PRESSED  0
 
@@ -55,15 +56,16 @@ void gpio_process()
     IoTGpioInit(GPIO_KEY_UP);
     /* 引脚配置为输入 */
     IoTGpioSetDir(GPIO_KEY_UP, IOT_GPIO_DIR_IN);
-
+    /* is_pressed 0:未按下 1:按下 */
     int is_pressed = NO_PRESSED;
     
     while (1)
     {
         IotGpioValue val;
         IoTGpioGetInputVal(GPIO_KEY_UP, &val);
+        
         if((val == 0) &&(is_pressed == NO_PRESSED)) {
-
+            /* 判断当按键按下时是否已经处理过按下 */
             //消除抖动
             LOS_Msleep(10);
             IoTGpioGetInputVal(GPIO_KEY_UP, &val);
@@ -72,11 +74,11 @@ void gpio_process()
                 printf("pressed\n");
             }
         }else if((val == 1) &&(is_pressed == PRESSED)){
+            /* 判断当按键松开时是否已经处理过 */
                 is_pressed = NO_PRESSED;
                 printf("no pressed\n");
         }
-        
-        /* 睡眠1秒 */
+        /* 睡眠50毫秒 */
         LOS_Msleep(50);
     }
 }

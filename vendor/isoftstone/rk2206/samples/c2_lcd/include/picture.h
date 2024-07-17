@@ -18,4 +18,10 @@
 #define IMAGE_MAXSIZE_ISOFTSTONE         26040
 extern const unsigned char gImage_isoftstone[IMAGE_MAXSIZE_ISOFTSTONE];
 
+extern const unsigned char gImage_home[2048];
+extern const unsigned char gImage_light_on[2048];
+extern const unsigned char gImage_light_off[2048];
+extern const unsigned char gImage_fan_off[2048];
+extern const unsigned char gImage_fan_on[2048];
+
 #endif

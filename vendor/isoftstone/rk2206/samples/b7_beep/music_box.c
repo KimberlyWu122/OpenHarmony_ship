@@ -67,11 +67,15 @@ void beep_process()
     while (1)
     {
         printf("buzzerMusicTask start!\r\n");
-        for (size_t i = 0; i < sizeof(g_scoreNotes)/sizeof(g_scoreNotes[0]); i++) {
-            uint32_t tune = g_scoreNotes[i]; // 音符
+        int count = sizeof(g_scoreNotes)/sizeof(g_scoreNotes[0]);
+        for (size_t i = 0;i < count;i++) {
+            // 音符
+            uint32_t tune = g_scoreNotes[i]; 
             uint16_t freqDivisor = g_tuneFreqs[tune];
-            uint32_t tuneInterval = g_scoreDurations[i] * (125*1000); // 音符时间
-            printf("%d %d %d %d\r\n", tune, (160*1000*1000) / freqDivisor, freqDivisor, tuneInterval);
+            // 音符时间
+            uint32_t tuneInterval = g_scoreDurations[i] * (125*1000); 
+            printf("%d %d %d %d\r\n", tune, 
+                (160*1000*1000) / freqDivisor, freqDivisor, tuneInterval);
             IoTPwmStart(BEEP_PORT, 50, freqDivisor);
             usleep(tuneInterval);
             IoTPwmStop(BEEP_PORT);

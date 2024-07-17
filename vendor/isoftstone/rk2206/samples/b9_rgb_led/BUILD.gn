@@ -14,7 +14,7 @@
 
 static_library("rgb_led_example") {
     sources = [
-        "rgb_led_example.c",
+        "ambient_lighting_example.c",
     ]
 
     include_dirs = [

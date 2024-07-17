@@ -63,7 +63,7 @@ void beep_process()
         }
 
         LOS_Msleep(2000);
-
+        //占空比渐渐增大
         duty += 10;
         if (duty == 100)
         {

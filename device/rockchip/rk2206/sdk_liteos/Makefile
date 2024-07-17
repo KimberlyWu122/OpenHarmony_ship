@@ -45,7 +45,7 @@ MCU = $(CPU) -mthumb #$(FPU) $(FLOAT-ABI)
 LDSCRIPT = board.ld
 
 boot_LIBS = -lbootstrap -lbroadcast
-hardware_LIBS = -lhal_iothardware -lhardware -lbeep_example
+hardware_LIBS = -lhal_iothardware -lhardware -lrgb_led_example
 hdf_LIBS = -lhdf_config -lhdf_core -lhdf_osal_lite -lhdf_platform_lite \
 #-lsample_driver -lgpio_driver -lpwm_driver -li2c_driver -ladc_driver -lspi_driver
 app_LIBS = 
