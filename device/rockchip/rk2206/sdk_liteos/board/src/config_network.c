@@ -267,6 +267,9 @@ void set_wifi_config_ssid(printf_fn pfn, uint8_t *s)
     len = len>WIFI_MAX_SN_LEN? WIFI_MAX_SN_LEN : len;
 
     FlashInit();         
+    unsigned char zo[WIFI_MAX_SN_LEN]={0};
+    VendorSet(VENDOR_ID_WIFI_SSID, zo, sizeof(zo));
+
     memcpy(ssid, s, len);
     VendorSet(VENDOR_ID_WIFI_SSID,      ssid, WIFI_MAX_SN_LEN);
 
@@ -286,6 +289,9 @@ void set_wifi_config_passwd(printf_fn pfn, uint8_t *p)
     len = len>WIFI_MAX_SN_LEN? WIFI_MAX_SN_LEN : len;
     
     FlashInit();         
+    unsigned char zo[WIFI_MAX_SN_LEN]={0};
+    VendorSet(VENDOR_ID_WIFI_PASSWD, zo, sizeof(zo));
+
     memcpy(passwd, p, len);
     VendorSet(VENDOR_ID_WIFI_PASSWD,      passwd, WIFI_MAX_SN_LEN);
 
@@ -305,6 +311,9 @@ void set_wifi_config_route_ssid(printf_fn pfn, uint8_t *s)
     len = len>WIFI_MAX_SN_LEN? WIFI_MAX_SN_LEN : len;
     
     FlashInit();         
+        unsigned char zo[WIFI_MAX_SN_LEN]={0};
+    VendorSet(VENDOR_ID_WIFI_ROUTE_SSID, zo, sizeof(zo));
+
     memcpy(ssid, s, len);
     VendorSet(VENDOR_ID_WIFI_ROUTE_SSID,      ssid, WIFI_MAX_SN_LEN);
 
@@ -324,6 +333,9 @@ void set_wifi_config_route_passwd(printf_fn pfn, uint8_t *p)
     len = len>WIFI_MAX_SN_LEN? WIFI_MAX_SN_LEN : len;
     
     FlashInit();         
+    unsigned char zo[WIFI_MAX_SN_LEN]={0};
+    VendorSet(VENDOR_ID_WIFI_ROUTE_PASSWD, zo, sizeof(zo));
+    
     memcpy(passwd, p, len);
     VendorSet(VENDOR_ID_WIFI_ROUTE_PASSWD,      passwd, WIFI_MAX_SN_LEN);
 
@@ -354,7 +366,7 @@ WifiErrorCode SetApModeOn()
     if(LZ_HARDWARE_SUCCESS == VendorGet(VENDOR_ID_SN, temp, WIFI_MAX_SN_LEN))
     {
         wifi_config_t wifi_config = {0};
-        if(strcmp(temp, "TX01") != 0)
+        if(strcmp(temp, WIFI_SN) != 0)
         {
             set_default_wifi_config();
             get_wifi_config(printf, &wifi_config);
@@ -373,7 +385,7 @@ WifiErrorCode SetApModeOn()
     }
 
 
-    config.channelNum = 1;
+    config.channelNum = 7;
     error = SetHotspotConfig(&config);
     if (error != WIFI_SUCCESS) {
         LZ_HARDWARE_LOGE(LOG_TAG, "rknetwork SetHotspotConfig ...error: %d\n", error);
@@ -558,8 +570,10 @@ WifiErrorCode SetWifiModeOn()
             set_default_wifi_config();
             get_wifi_config(printf, &wifi_config);
         }
+
         memset(temp, 0, WIFI_MAX_SN_LEN);
         VendorGet(VENDOR_ID_WIFI_ROUTE_SSID,   temp, WIFI_MAX_SN_LEN);
+
         memcpy(g_wificonfig.ssid, temp, sizeof(g_wificonfig.ssid));
         memset(temp, 0, WIFI_MAX_SN_LEN);
         VendorGet(VENDOR_ID_WIFI_ROUTE_PASSWD, temp, WIFI_MAX_SN_LEN);
@@ -570,7 +584,7 @@ WifiErrorCode SetWifiModeOn()
         memcpy_s(g_wificonfig.ssid, sizeof(g_wificonfig.ssid), ROUTE_SSID, sizeof(ROUTE_SSID));
         memcpy_s(g_wificonfig.psk, sizeof(g_wificonfig.psk), ROUTE_PASSWORD, sizeof(ROUTE_PASSWORD));
     }
-
+    
     LZ_HARDWARE_LOGD(LOG_TAG, "rknetwork SetWifiModeOn\n");
     LZ_HARDWARE_LOGD(LOG_TAG, "rknetwork g_wificonfig.ssid %s\n", g_wificonfig.ssid);
     LZ_HARDWARE_LOGD(LOG_TAG, "rknetwork g_wificonfig.psk %s\n", g_wificonfig.psk);

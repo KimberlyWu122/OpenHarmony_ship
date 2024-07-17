@@ -1,32 +1,32 @@
 #include "ohos_init.h"
 #include "cmsis_os2.h"
 #include "los_task.h"
-#include "lz_hardware.h"
 #include "config_network.h"
 #include "lwip/tcp.h"
 #include "lwip/ip_addr.h"
 #include "lwip/priv/tcp_priv.h"
 #include "lwip/stats.h"
 #include "lwip/inet_chksum.h"
+#include "wifi_store.h"
+#include "button.h"
 
 #define LOG_TAG    "udp"
+
+#define TX_LOG(tag, fmt, ...)  do { \
+    printf("[" tag ":]" fmt "\n", ##__VA_ARGS__); \
+} while (0)
+
 int get_wifi_info(WifiLinkedInfo *info);
 
 #define OC_SERVER_IP   "192.168.2.49"
 #define SERVER_PORT        6666
 
-#define BUFF_LEN           256
 
-
-//定义kv存储的ssid和pwd的key
-#define KV_SSID "ssid"
-#define KV_PWD "password"
-
-static   char g_ssid[32]={0};
-static   char g_pwd[32]={0};
+static   char g_ssid[WIFI_INFO_MAX_LEN]={0};
+static   char g_pwd[WIFI_INFO_MAX_LEN]={0};
 WifiLinkedInfo wifiinfo;
 
-int udp_get_wifi_info(WifiLinkedInfo *info)
+int get_wifi_info(WifiLinkedInfo *info)
 {
     int ret = -1;
     int gw, netmask;
@@ -65,34 +65,23 @@ connect_done:
     return ret;
 }
 
-/*
-保存wifi的ssid和密码
-***/
-static void saveWifiInfo(char *ssid, char *pwd){
-    if (UtilsSetValue(KV_SSID, ssid) !=0){
-        printf("store ssid failed! \n");
-        return;
-    }
-    if (UtilsSetValue(KV_PWD, pwd) != 0){
-        printf("store password failed! \n");
-        return;
-    }
-    printf("store password success! \n");
-}
 
 void udp_server_msg_handle(int fd)
 {
-    char buf[BUFF_LEN];  //接收缓冲区
+    char recvBuf[512] = { 0 };
+    char sendBuf[512] = { 0 };
     socklen_t len;
-    int cnt = 0, count;
+    int ret = 0;
+    int count = 0;
     struct sockaddr_in client_addr = {0};
+
     while (1)
     {
-        memset(buf, 0, BUFF_LEN);
+        memset(recvBuf, 0, sizeof(recvBuf));
         len = sizeof(client_addr);
         printf("[udp server]------------------------------------------------\n");
         printf("[udp server] waitting client message!!!\n");
-        count = recvfrom(fd, buf, BUFF_LEN, 0, (struct sockaddr*)&client_addr, &len);       //recvfrom是阻塞函数，没有数据就一直阻塞
+        count = recvfrom(fd, recvBuf, sizeof(recvBuf), 0, (struct sockaddr*)&client_addr, &len);       //recvfrom是阻塞函数，没有数据就一直阻塞
         if (count == -1)
         {
             printf("[udp server] recieve data fail!\n");
@@ -100,11 +89,36 @@ void udp_server_msg_handle(int fd)
             break;
         }
         printf("[udp server] remote addr:%s port:%u\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-        printf("[udp server] rev:%s\n", buf);
-        memset(buf, 0, BUFF_LEN);
-        sprintf(buf, "I have recieved %d bytes data! recieved cnt:%d", count, ++cnt);
-        printf("[udp server] send:%s\n", buf);
-        sendto(fd, buf, strlen(buf), 0, (struct sockaddr*)&client_addr, len);        //发送信息给client
+        printf("[udp server] rev:%s\n", recvBuf);
+        
+        /**
+        *解析收到的数据,格式:ssid:xxxx,pwd:yyyy
+        */
+        char *ssid_str = strstr(recvBuf,"ssid:");
+        char *comma_str = strstr(recvBuf,",pwd:");
+
+        if((ssid_str != NULL) && (comma_str != NULL)){
+            char ssid[32]={0};
+            char pwd[32]={0};
+
+            memcpy(ssid,ssid_str+5,comma_str-(ssid_str+5));
+            memcpy(pwd,comma_str+5,recvBuf+strlen(recvBuf)-(comma_str+5));
+
+            printf("==>> {{{%s,%s}}}}\n",ssid,pwd);
+
+            sprintf(sendBuf,"OK ==>%s \n",recvBuf);
+            ret = sendto(fd, sendBuf, strlen(sendBuf), 0, 
+                (struct sockaddr *)&client_addr, sizeof(client_addr));
+            if (ret < 0) {
+                printf("UDP server send failed!\r\n");
+                return -1;
+            }
+            //保存ssid和密码信息
+            saveWifiInfo(ssid,pwd);
+            //重启设备
+            RebootDevice(3);
+        }
+
     }
     lwip_close(fd);
 }
@@ -160,6 +174,33 @@ int AP_task(WifiLinkedInfo *info)
     wifi_udp_server(NULL);
 }
 
+
+void sta_process(void *args)
+{
+    unsigned int ret = LOS_OK;
+   
+    WifiLinkedInfo info;
+
+    uint8_t mac_address[6] = {0x00, 0xdc, 0xb6, 0x90, 0x00, 0x00};
+    FlashInit();
+
+     set_wifi_config_mac(printf, mac_address);
+     set_wifi_config_route_ssid(printf, g_ssid);
+     set_wifi_config_route_passwd(printf, g_pwd);
+
+    SetWifiModeOff();
+    SetWifiModeOn();
+
+    while(get_wifi_info(&info) != 0) ;
+
+    while(1)
+    {
+        //联网成功之后 运行正常的AP模式程序,比如物联网IoT
+        printf("sta mode...");
+        LOS_Msleep(1000);
+    }
+}
+
 void wifi_pair_example(void)
 {
     unsigned int ret = LOS_OK;
@@ -167,33 +208,9 @@ void wifi_pair_example(void)
     TSK_INIT_PARAM_S task = {0};
     printf("%s start ....\n", __FUNCTION__);
 
-    
-    int not_found=0;
-    
-    //从flash读取保存的ssid
-    if (UtilsGetValue(KV_SSID, g_ssid, sizeof(g_ssid)-1) < 0) {
-        printf("get ssid value failed!\n");
-        not_found = 1;
-    }
-    printf("===== key: %s, value: %s =====\n", KV_SSID, g_ssid);
-
-    //从flash读取保存的密码
-    if (UtilsGetValue(KV_PWD, g_pwd, sizeof(g_pwd)-1) < 0) {
-        printf("get pwd value failed!\n");
-        not_found = 1;
-    }
-    printf("===== key: %s, value: %s =====\n", KV_PWD, g_pwd);
-
-    printf("==> not_found = %d\n",not_found);
-
-    if(not_found == 1){
-        saveWifiInfo("abcd", "12345678");
-        return;
-    }
-
-    task.pfnTaskEntry = (TSK_ENTRY_FUNC)AP_task;
+    task.pfnTaskEntry = (TSK_ENTRY_FUNC)key_process;
     task.uwStackSize = 10240;
-    task.pcName = "wifi_ap";
+    task.pcName = "key_process";
     task.usTaskPrio = 24;
     ret = LOS_TaskCreate(&thread_id, &task);
     if (ret != LOS_OK)
@@ -201,6 +218,34 @@ void wifi_pair_example(void)
         printf("Falied to create AP_task ret:0x%x\n", ret);
         return;
     }
+    int find = loadWifiInfo(g_ssid,g_pwd);
+
+    if(find == 0){
+        task.pfnTaskEntry = (TSK_ENTRY_FUNC)AP_task;
+        task.uwStackSize = 10240;
+        task.pcName = "wifi_ap";
+        task.usTaskPrio = 24;
+        ret = LOS_TaskCreate(&thread_id, &task);
+        if (ret != LOS_OK)
+        {
+            printf("Falied to create AP_task ret:0x%x\n", ret);
+            return;
+        }
+        return;
+    }else{
+        task.pfnTaskEntry = (TSK_ENTRY_FUNC)sta_process;
+        task.uwStackSize = 10240;
+        task.pcName = "sta_process";
+        task.usTaskPrio = 24;
+        ret = LOS_TaskCreate(&thread_id, &task);
+        if (ret != LOS_OK)
+        {
+            printf("Falied to create AP_task ret:0x%x\n", ret);
+            return;
+        }
+        return;
+    }
+
 }
 
 APP_FEATURE_INIT(wifi_pair_example);

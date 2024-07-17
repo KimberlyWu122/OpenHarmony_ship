@@ -309,9 +309,12 @@ int HalFileStat(const char* path, unsigned int* fileSize)
     strcpy(path_buf, (MOUNT_PATH DIR_PATH STR_SLASHES));
     strcat(path_buf, path);
     
-    if (LfsStat(path_buf, &st_buf) != 0)
+    if (HalFileInit() == 0)
     {
-        return -1;
+        if (LfsStat(path_buf, &st_buf) != 0)
+        {
+            return -1;
+        }
     }
     
     if (fileSize)

@@ -78,6 +78,7 @@ void adc_process()
 
     /* 初始化adc设备 */
     adc_dev_init();
+
     
     while (1)
     {
@@ -86,8 +87,21 @@ void adc_process()
         voltage = adc_get_voltage();
         printf("vlt:%.3fV\n", voltage);
 
+        if(voltage >3.2){
+            // printf("no key\n");
+        }else if (voltage > 1.50){
+            printf("LEFT\n");
+
+        }else if (voltage > 1.0){
+            printf("DOWN\n");
+        }else if (voltage > 0.5){
+            printf("RIGHT\n");
+        }else{
+            printf("UP\n");
+        }
+
         /* 睡眠1秒 */
-        LOS_Msleep(1000);
+        LOS_Msleep(100);
     }
 }
 

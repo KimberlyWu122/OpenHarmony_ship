@@ -15,6 +15,8 @@ import("//build/lite/config/component/lite_component.gni")
 
 lite_component("app") {
     features = [
+        # "hello:hello" , 
+
         # 内核类
         # "./a1_kernal_task:task_example",
         # "./a2_kernel_semaphore:semaphore_example",
@@ -28,6 +30,7 @@ lite_component("app") {
         # 基础外设类
         # "./b1_gpio:gpio_example",
         # "./b2_gpio_interrupt:gpio_interrupt_example",
+        # "./b2_key_scan:key_scan_example" ,
         # "./b3_adc:adc_example",
         # "./b4_uart0:uart_example",
         # "./b5_uart2:uart2_example",

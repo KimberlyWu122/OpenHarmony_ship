@@ -1,0 +1,11 @@
+static_library("hello"){
+
+    sources = [
+        "hello.c",
+    ]
+
+    include_dirs = [
+        ".",
+    ]
+
+}
