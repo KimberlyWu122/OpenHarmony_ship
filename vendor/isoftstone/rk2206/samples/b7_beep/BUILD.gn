@@ -14,7 +14,8 @@
 
 static_library("beep_example") {
     sources = [
-        "beep_example.c",
+        # "beep_example.c",
+        "music_box.c" ,
     ]
 
     include_dirs = [
