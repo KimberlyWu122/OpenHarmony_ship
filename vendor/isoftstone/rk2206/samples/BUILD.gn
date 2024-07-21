@@ -37,7 +37,7 @@ lite_component("app") {
         # "./b6_i2c_scan:i2c_scan_example",
         # "./b7_beep:beep_example",
         # "./b8_electrical_machinery:electrical_machinery_example",
-        "./b9_rgb_led:rgb_led_example",
+        # "./b9_rgb_led:rgb_led_example",
         # "./b10_wifi_udp:wifi_udp_example",  
         # "./b11_wifi_tcp:wifi_tcp_example",
         # "./b12_watchdog:watchdog_example",
@@ -61,7 +61,7 @@ lite_component("app") {
         # "./d2_smart_security:smart_security_example",
 
         # Iot综合实验类
-        # "./e1_iot_smart_home:iot_smart_hone_example",
+        "./e1_iot_smart_home:iot_smart_hone_example",
         # "./e2_iot_smart_security:iot_smart_security_example",
     ]
 

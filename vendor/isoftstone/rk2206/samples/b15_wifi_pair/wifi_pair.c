@@ -136,7 +136,8 @@ int wifi_udp_server(void* arg)
             return -1;
         }
 
-        /*设置调用close(socket)后,仍可继续重用该socket。调用close(socket)一般不会立即关闭socket，而经历TIME_WAIT的过程。*/
+        /*设置调用close(socket)后,仍可继续重用该socket。
+        调用close(socket)一般不会立即关闭socket，而经历TIME_WAIT的过程。*/
         int flag = 1;
         ret = setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int));
         if (ret != 0) {
@@ -145,9 +146,10 @@ int wifi_udp_server(void* arg)
         
         struct sockaddr_in serv_addr = {0};
         serv_addr.sin_family = AF_INET;
-        serv_addr.sin_addr.s_addr = htonl(INADDR_ANY); //IP地址，需要进行网络序转换，INADDR_ANY：本地地址
-        // serv_addr.sin_addr.s_addr = wifiinfo.ipAddress; 
-        serv_addr.sin_port = htons(SERVER_PORT);       //端口号，需要网络序转换
+        //IP地址，需要进行网络序转换，INADDR_ANY：本地地址
+        serv_addr.sin_addr.s_addr = htonl(INADDR_ANY); 
+         //端口号，需要网络序转换
+        serv_addr.sin_port = htons(SERVER_PORT);      
         /* 绑定服务器地址结构 */
         ret = bind(server_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
         if (ret < 0)

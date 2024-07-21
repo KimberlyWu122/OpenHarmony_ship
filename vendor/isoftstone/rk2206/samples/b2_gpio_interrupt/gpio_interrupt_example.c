@@ -32,6 +32,7 @@ static unsigned int m_gpio_interrupt_count = 0;
 ***************************************************************/
 void gpio_isr_func(void *args)
 {
+    printf("check Body!\n");
     m_gpio_interrupt_count++;
 }
 
@@ -50,7 +51,8 @@ void gpio_process()
     /* 引脚配置为输入 */
     IoTGpioSetDir(GPIO_BODY_INDUCTION, IOT_GPIO_DIR_IN);
     /* 设置中断触发方式为上升沿和中断处理函数 */
-    ret = IoTGpioRegisterIsrFunc(GPIO_BODY_INDUCTION, IOT_INT_TYPE_EDGE, IOT_GPIO_EDGE_RISE_LEVEL_HIGH, gpio_isr_func, NULL);
+    ret = IoTGpioRegisterIsrFunc(GPIO_BODY_INDUCTION, 
+        IOT_INT_TYPE_EDGE, IOT_GPIO_EDGE_RISE_LEVEL_HIGH, gpio_isr_func, NULL);
     if (ret != IOT_SUCCESS)
     {
         printf("IoTGpioRegisterIsrFunc failed(%d)\n", ret);

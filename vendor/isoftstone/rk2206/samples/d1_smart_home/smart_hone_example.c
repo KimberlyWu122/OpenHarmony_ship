@@ -26,7 +26,7 @@
 
 bool motor_state = false;
 bool light_state = false;
-bool auto_state = true;
+bool auto_state = false;
 
 static unsigned int m_msg_queue;
 unsigned int m_su03_msg_queue;

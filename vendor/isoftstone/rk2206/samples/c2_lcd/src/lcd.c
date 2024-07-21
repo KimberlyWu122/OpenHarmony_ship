@@ -454,7 +454,8 @@ unsigned int lcd_init()
     ret = IoTSpiInit(LCD_SPI_BUS, &iot_spi);
     if (ret != IOT_SUCCESS)
     {
-        printf("%s, %s, %d: Spi init failed!\n", __FILE__, __func__, __LINE__);
+        printf("%s, %s, %d: Spi init failed!\n",
+         __FILE__, __func__, __LINE__);
         return IOT_FAILURE;
     }
 #else
@@ -800,7 +801,8 @@ void lcd_draw_circle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color)
  *       @mode: 0为非叠加模式；1为叠加模式
  * 返 回 值: 无
  ***************************************************************/
-void lcd_show_chinese(uint16_t x, uint16_t y, uint8_t *s, uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode)
+void lcd_show_chinese(uint16_t x, uint16_t y, uint8_t *s, 
+    uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode)
 {
     uint8_t buffer[128];
     uint32_t buffer_len = 0;
@@ -834,34 +836,6 @@ void lcd_show_chinese(uint16_t x, uint16_t y, uint8_t *s, uint16_t fc, uint16_t 
         }
     }
 
-
-    #if 0
-    while (*s != 0)
-    {
-        if (sizey == 12)
-        {
-            lcd_show_chinese_12x12(x, y, s, fc, bc, sizey, mode);
-        }
-        else if (sizey == 16)
-        {
-            lcd_show_chinese_16x16(x, y, s, fc, bc, sizey, mode);
-        }
-        else if (sizey == 24)
-        {
-            lcd_show_chinese_24x24(x, y, s, fc, bc, sizey, mode);
-        }
-        else if (sizey == 32)
-        {
-            lcd_show_chinese_32x32(x, y, s, fc, bc, sizey, mode);
-        }
-        else
-        {
-            return;
-        }
-        s += 2;
-        x += sizey;
-    }
-    #endif
 }
 
 

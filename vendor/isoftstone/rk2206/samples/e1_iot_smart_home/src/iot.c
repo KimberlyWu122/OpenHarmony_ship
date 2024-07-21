@@ -28,7 +28,7 @@
 
 #define HOST_ADDR "117.78.16.25"
 
-#define DEVICE_ID "b1h15jkj0bog-1803239992521130055_rk2206"
+#define DEVICE_ID "2lcmdumtiyaz-1814855693841203235_txsmart01"
 
 #define PUBLISH_TOPIC "$oc/devices/" DEVICE_ID "/sys/properties/report"
 #define SUBCRIB_TOPIC                                                          \
@@ -73,7 +73,7 @@ void send_msg_to_mqtt(e_iot_data *iot_data) {
   if (root != NULL) {
     cJSON *serv_arr = cJSON_AddArrayToObject(root, "services");
     cJSON *arr_item = cJSON_CreateObject();
-    cJSON_AddStringToObject(arr_item, "service_id", "smart_home");
+    cJSON_AddStringToObject(arr_item, "service_id", "smartHome");
     cJSON *pro_obj = cJSON_CreateObject();
     cJSON_AddItemToObject(arr_item, "properties", pro_obj);
 
@@ -89,21 +89,21 @@ void send_msg_to_mqtt(e_iot_data *iot_data) {
     cJSON_AddStringToObject(pro_obj, "humidity", str);
     // 电机状态
     if (iot_data->motor_state == true) {
-      cJSON_AddStringToObject(pro_obj, "motor_state", "开启");
+      cJSON_AddStringToObject(pro_obj, "motorStatus", "ON");
     } else {
-      cJSON_AddStringToObject(pro_obj, "motor_state", "关闭");
+      cJSON_AddStringToObject(pro_obj, "motorStatus", "OFF");
     }
     // 灯光状态
     if (iot_data->light_state == true) {
-      cJSON_AddStringToObject(pro_obj, "light_state", "开启");
+      cJSON_AddStringToObject(pro_obj, "lightStatus", "ON");
     } else {
-      cJSON_AddStringToObject(pro_obj, "light_state", "关闭");
+      cJSON_AddStringToObject(pro_obj, "lightStatus", "OFF");
     }
     // 自动状态模式
     if (iot_data->auto_state == true) {
-      cJSON_AddStringToObject(pro_obj, "auto_state", "开启");
+      cJSON_AddStringToObject(pro_obj, "autoStatus", "ON");
     } else {
-      cJSON_AddStringToObject(pro_obj, "auto_state", "关闭");
+      cJSON_AddStringToObject(pro_obj, "autoStatus", "OFF");
     }
 
     cJSON_AddItemToArray(serv_arr, arr_item);
@@ -124,7 +124,7 @@ void send_msg_to_mqtt(e_iot_data *iot_data) {
     printf("Return code from MQTT publish is %d\n", rc);
     mqttConnectFlag = 0;
   } else {
-    // printf("mqtt publish success:%s\n", payload);
+    printf("mqtt publish success:%s\n", payload);
   }
 }
 
@@ -140,12 +140,12 @@ void set_light_state(cJSON *root) {
   char *value = NULL;
 
   para_obj = cJSON_GetObjectItem(root, "paras");
-  status_obj = cJSON_GetObjectItem(para_obj, "light_state");
+  status_obj = cJSON_GetObjectItem(para_obj, "onoff");
   if (status_obj != NULL) {
     value = cJSON_GetStringValue(status_obj);
-    if (!strcmp(value, "on")) {
+    if (!strcmp(value, "ON")) {
       light_state = true;
-    } else if (!strcmp(value, "off")) {
+    } else if (!strcmp(value, "OFF")) {
       light_state = false;
     }
   }
@@ -163,12 +163,12 @@ void set_motor_state(cJSON *root) {
   char *value = NULL;
 
   para_obj = cJSON_GetObjectItem(root, "paras");
-  status_obj = cJSON_GetObjectItem(para_obj, "motor_state");
+  status_obj = cJSON_GetObjectItem(para_obj, "onoff");
   if (status_obj != NULL) {
     value = cJSON_GetStringValue(status_obj);
-    if (!strcmp(value, "on")) {
+    if (!strcmp(value, "ON")) {
       motor_state = true;
-    } else if (!strcmp(value, "off")) {
+    } else if (!strcmp(value, "OFF")) {
       motor_state = false;
     }
   }
@@ -186,12 +186,12 @@ void set_auto_state(cJSON *root) {
   char *value = NULL;
 
   para_obj = cJSON_GetObjectItem(root, "paras");
-  status_obj = cJSON_GetObjectItem(para_obj, "auto_state");
+  status_obj = cJSON_GetObjectItem(para_obj, "onoff");
   if (status_obj != NULL) {
     value = cJSON_GetStringValue(status_obj);
-    if (!strcmp(value, "on")) {
+    if (!strcmp(value, "ON")) {
       auto_state = true;
-    } else if (!strcmp(value, "off")) {
+    } else if (!strcmp(value, "OFF")) {
       auto_state = false;
     }
   }
@@ -253,11 +253,11 @@ void mqtt_message_arrived(MessageData *data) {
     cmd_name = cJSON_GetObjectItem(root, "command_name");
     if (cmd_name != NULL) {
       cmd_name_str = cJSON_GetStringValue(cmd_name);
-      if (!strcmp(cmd_name_str, "light")) {
+      if (!strcmp(cmd_name_str, "light_control")) {
         set_light_state(root);
-      } else if (!strcmp(cmd_name_str, "motor")) {
+      } else if (!strcmp(cmd_name_str, "motor_control")) {
         set_motor_state(root);
-      } else if (!strcmp(cmd_name_str, "auto")) {
+      } else if (!strcmp(cmd_name_str, "auto_control")) {
         set_auto_state(root);
       }
     }

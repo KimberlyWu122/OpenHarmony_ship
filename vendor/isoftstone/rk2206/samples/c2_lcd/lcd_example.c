@@ -19,6 +19,35 @@
 
 extern const unsigned char gImage_isoftstone[IMAGE_MAXSIZE_ISOFTSTONE];
 
+void lcd_show_text(int x, int y, char *str, int fc, int bc, int font_size, int mode)
+{
+    char *tmp_str = str;
+    int cur_x=x;
+    int cur_y=y;
+
+    while(*tmp_str != '\0')
+    {
+        if(tmp_str[0] > 0){
+            //英文或数字,只占一字节,直接传入对应字符
+            lcd_show_char(cur_x,cur_y,tmp_str[0], fc,bc,font_size, mode);
+            tmp_str++;
+            cur_x += font_size/2;//英文字宽度只有字号一半
+        }else{ 
+            //中文
+            uint8_t cn_str[4]={tmp_str[0],tmp_str[1],tmp_str[3],0};
+            lcd_show_chinese(cur_x,cur_y,cn_str, fc,bc,font_size, mode);
+            tmp_str +=3;
+            cur_x += font_size;
+        }
+        
+        if(cur_x > LCD_H-font_size)
+		{
+			cur_x=0;
+			cur_y+=font_size;
+		}
+    }
+}
+
 
 /***************************************************************
 * 函数名称: lcd_process
@@ -48,18 +77,14 @@ void lcd_process(void *arg)
         lcd_show_picture(15, 0, 210, 62, &gImage_isoftstone[0]);
         lcd_show_string(0, 70, "Welcome to TX-SMART-R!", LCD_RED, LCD_WHITE, 16, 0);
         lcd_show_string(0, 88, "URL: https://www.issedu.com/", LCD_RED, LCD_WHITE, 16, 0);
-        
-        lcd_show_picture(15, 120, 32, 32, &gImage_home[0]);
-        lcd_show_picture(50, 120, 32, 32, &gImage_light_off[0]);
-        lcd_show_picture(85, 120, 32, 32, &gImage_fan_off[0]);
-
-        // lcd_show_string(0, 160, "LCD_W:", LCD_BLUE, LCD_WHITE, 16, 0);
-        // lcd_show_int_num(48, 160, LCD_W, 3, LCD_BLUE, LCD_WHITE, 16);
-        // lcd_show_string(80, 160, "LCD_H:", LCD_BLUE, LCD_WHITE, 16, 0);
-        // lcd_show_int_num(128, 160, LCD_H, 3, LCD_BLUE, LCD_WHITE, 16);
-        // lcd_show_string(80, 160, "LCD_H:", LCD_BLUE, LCD_WHITE, 16, 0);
-        // lcd_show_string(0, 190, "Increaseing Num:", LCD_BLACK, LCD_WHITE, 16, 0);
-        // lcd_show_float_num1(128, 190, t, 4, LCD_BLACK, LCD_WHITE, 16);
+        lcd_show_chinese(0, 108,"开源鸿蒙" , LCD_RED, LCD_GRAY, 32, 0);
+        lcd_show_string(0, 160, "LCD_W:", LCD_BLUE, LCD_WHITE, 16, 0);
+        lcd_show_int_num(48, 160, LCD_W, 3, LCD_BLUE, LCD_WHITE, 16);
+        lcd_show_string(80, 160, "LCD_H:", LCD_BLUE, LCD_WHITE, 16, 0);
+        lcd_show_int_num(128, 160, LCD_H, 3, LCD_BLUE, LCD_WHITE, 16);
+        lcd_show_string(80, 160, "LCD_H:", LCD_BLUE, LCD_WHITE, 16, 0);
+        lcd_show_string(0, 190, "Increaseing Num:", LCD_BLACK, LCD_WHITE, 16, 0);
+        lcd_show_float_num1(128, 190, t, 4, LCD_BLACK, LCD_WHITE, 16);
         t += 0.11;
 
         lcd_fill(0, 220, LCD_W, LCD_H, LCD_WHITE);

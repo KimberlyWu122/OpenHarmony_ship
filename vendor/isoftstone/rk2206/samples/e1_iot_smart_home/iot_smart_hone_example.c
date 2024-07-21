@@ -25,8 +25,8 @@
 #include "su_03t.h"
 #include "iot.h"
 
-#define ROUTE_SSID "软通教育"       // WiFi账号
-#define ROUTE_PASSWORD "88888888"   // WiFi密码
+#define ROUTE_SSID      "MY_SW"          // WiFi账号
+#define ROUTE_PASSWORD "12345678"   // WiFi密码
 
 #define MSG_QUEUE_LENGTH                                16
 #define BUFFER_LEN                                      50
@@ -36,7 +36,7 @@ unsigned int m_su03_msg_queue;
 
 bool motor_state = false;
 bool light_state = false;
-bool auto_state = true;
+bool auto_state = false;
 
 /***************************************************************
  * 函数名称: iot_thread
@@ -150,19 +150,19 @@ void smart_hone_thread(void *arg)
             send_msg_to_mqtt(&iot_data);
         }
 
-        printf("============= smart home example ==============\n");
-        printf("======== data ========\r\n");
-        printf("illumination:%5.2f\r\n", data_ptr[0]);
-        printf("temperature:%5.2f\r\n", data_ptr[1]);
-        printf("humidity:%5.2f\r\n", data_ptr[2]);
-        printf("======== state ========\r\n");
-        printf("light_state:%d\r\n", light_state);
-        printf("motor_state:%d\r\n", motor_state);
-        printf("auto_state:%d\r\n", auto_state);
+        // printf("============= smart home example ==============\n");
+        // printf("======== data ========\r\n");
+        // printf("illumination:%5.2f\r\n", data_ptr[0]);
+        // printf("temperature:%5.2f\r\n", data_ptr[1]);
+        // printf("humidity:%5.2f\r\n", data_ptr[2]);
+        // printf("======== state ========\r\n");
+        // printf("light_state:%d\r\n", light_state);
+        // printf("motor_state:%d\r\n", motor_state);
+        // printf("auto_state:%d\r\n", auto_state);
 
-        printf("\r\n");
+        // printf("\r\n");
 
-        LOS_Msleep(500);
+        LOS_Msleep(3000);
     }
 }
 

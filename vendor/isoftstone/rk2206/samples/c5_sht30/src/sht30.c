@@ -55,9 +55,7 @@ void sht30_init(void)
 static float sht30_calc_RH(uint16_t u16sRH)
 {
     float humidityRH = 0;
-
-    /*clear bits [1..0] (status bits)*/
-    u16sRH &= ~0x0003;
+    
     /*calculate relative humidity [%RH]*/
     /*RH = rawValue / (2^16-1) * 10*/
     humidityRH = (100 * (float)u16sRH / 65535);
@@ -75,8 +73,6 @@ static float sht30_calc_temperature(uint16_t u16sT)
 {
     float temperature = 0;
 
-    /*clear bits [1..0] (status bits)*/
-    u16sT &= ~0x0003;
     /*calculate temperature [℃]*/
     /*T = -45 + 175 * rawValue / (2^16-1)*/
     temperature = (175 * (float)u16sT / 65535 - 45);
