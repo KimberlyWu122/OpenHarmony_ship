@@ -69,7 +69,7 @@ int duty_fix(int duty){
 
     return duty;
 }
-#define USE_SMOOTH 1
+#define USE_SMOOTH 0
 void rgb_led_process()
 {
     unsigned int ret;

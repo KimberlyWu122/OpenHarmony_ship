@@ -20,9 +20,11 @@
 
 /* 人体感应传感器GPIO */
 #define GPIO_BODY_INDUCTION      GPIO0_PA3
+#define GPIO_TEST               GPIO0_PA5
 
 /* 记录中断触发次数 */
 static unsigned int m_gpio_interrupt_count = 0;
+uint8_t light_flag= 0;
 
 /***************************************************************
 * 函数名称: gpio_isr_func
@@ -33,7 +35,9 @@ static unsigned int m_gpio_interrupt_count = 0;
 void gpio_isr_func(void *args)
 {
     printf("check Body!\n");
-    m_gpio_interrupt_count++;
+    // m_gpio_interrupt_count++;
+    IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE1);
+    light_flag= 1;
 }
 
 /***************************************************************
@@ -45,6 +49,13 @@ void gpio_isr_func(void *args)
 void gpio_process()
 {
     unsigned int ret;
+   
+    //初始化IO口
+    IoTGpioInit(GPIO_TEST);
+    //设置GPIO为输出方向
+    IoTGpioSetDir(GPIO_TEST, IOT_GPIO_DIR_OUT);
+    // //设置GPIO输出电平
+    // IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE1);
 
     /* 初始化引脚为GPIO */
     IoTGpioInit(GPIO_BODY_INDUCTION);
@@ -59,20 +70,81 @@ void gpio_process()
         return;
     }
 
-    /* 初始化中断触发次数 */
-    m_gpio_interrupt_count = 0;
-    /* 关闭中断屏蔽 */
-    IoTGpioSetIsrMask(GPIO_BODY_INDUCTION, FALSE);
+    // /* 初始化中断触发次数 */
+    // m_gpio_interrupt_count = 0;
+    // /* 关闭中断屏蔽 */
+    // IoTGpioSetIsrMask(GPIO_BODY_INDUCTION, FALSE);
     
-    while (1)
-    {
-        printf("***************GPIO Interrupt Example*************\n");
-        printf("gpio interrupt count = %d\n", m_gpio_interrupt_count);
-        printf("\n");
+    int count= 0;
+    //   int size = 100;
+    uint32_t nbuffer[400]={0};
+    FlashInit();
+    // int n=FlashRead(0x879d00, 400, buffer);
+    // for(int i=0;i<size;i+=4)
+    // {
         
-        /* 睡眠1秒 */
-        LOS_Msleep(1000);
+    //     if(buffer[i]!=0){
+    //             printf(">>addr%x %08x \r\n",0x879d00+i,buffer[i]);
+                
+    //     }
+    // }
+    //按照地址随机找
+     for (int addr=0x800000;addr<0x8000000;addr+=4)
+    {
+        
+        int n=FlashRead(addr, 40, nbuffer);
+        if(memcmp(nbuffer,"3861 test",8)==0){
+            printf(">>addr%x %08x \r\n",addr,nbuffer[0]);
+        }
+        if(memcmp(nbuffer,"tset 1683",8)==0){
+            //用3861倒序找
+            printf(">>>addr%x %08x \r\n",addr,nbuffer[0]);
+            printf("buffer:%s\n",(char *)nbuffer);
+            int size = 100;
+            uint32_t buffer[400]={0};
+            FlashRead(addr-40, 400, buffer); //找到后读取前后的区块
+            for(int i=0;i<size;i+=4)
+            {
+                
+                if(buffer[i]!=0){
+                        printf(">>addr%x %08x \r\n",addr-40+i,buffer[i]);
+                        
+                }
+            }
+        }
+        
+        // for(int i=0;i<size;i++)
+        // {
+           
+        //     if(buffer[i]!=0){
+        //          printf(">>addr%d %02x \r\n",i,buffer[i]);
+                 
+        //     }
+        // }
+        // printf("\n");
     }
+    // printf("over n=%d\n",n);
+    // while (1)
+    // {
+    //     printf("***************GPIO Interrupt Example*************\n");
+    //     printf("gpio interrupt count = %d\n", m_gpio_interrupt_count);
+    //     printf("\n");
+    //     if(light_flag==1)
+    //     {
+
+    //         count++;
+    //         if(count >=30)
+    //         {
+    //             IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE0);
+    //             count= 0;
+    //             light_flag= 0;
+    //         }
+            
+    //     }
+        
+    //     /* 睡眠1秒 */
+    //     LOS_Msleep(1000);
+    // }
 }
 
 
@@ -89,7 +161,7 @@ void gpio_interrupt_example()
     unsigned int ret = LOS_OK;
 
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)gpio_process;
-    task.uwStackSize = 2048;
+    task.uwStackSize = 20480;
     task.pcName = "gpio process";
     task.usTaskPrio = 24;
     ret = LOS_TaskCreate(&thread_id, &task);

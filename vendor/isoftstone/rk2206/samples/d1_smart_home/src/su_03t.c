@@ -78,9 +78,9 @@ static void su_03t_thread(void *arg)
 
         printf("uart2 read %d  bytes:\n",rec_len);
         for(int i = 0;i< rec_len;i++){
-            printf("%02x \n",data[i]);
+            printf("%02x \r\n",data[i]);
         }
-        printf("\n");
+        printf("\r\n");
 
         if (rec_len != 0)
         {

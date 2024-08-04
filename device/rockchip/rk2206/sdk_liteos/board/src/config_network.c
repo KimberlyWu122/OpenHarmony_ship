@@ -385,7 +385,7 @@ WifiErrorCode SetApModeOn()
     }
 
 
-    config.channelNum = 7;
+    config.channelNum = 7;  //1~13
     error = SetHotspotConfig(&config);
     if (error != WIFI_SUCCESS) {
         LZ_HARDWARE_LOGE(LOG_TAG, "rknetwork SetHotspotConfig ...error: %d\n", error);

@@ -137,6 +137,18 @@ void lcd_draw_rectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint
  ***************************************************************/
 void lcd_draw_circle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color);
 
+/***************************************************************
+ * 函数名称: lcd_draw_circle
+ * 说    明: 指定位置画圆
+ * 参    数:
+ *       @x0：指定圆的中心点X坐标
+ *       @y0：指定圆的中心点Y坐标
+ *       @r：指定圆的半径
+ *       @color：指定点的颜色
+ * 返 回 值: 无
+ ***************************************************************/
+void lcd_draw_triangle
+(uint16_t x0, uint16_t y0,uint16_t x1, uint16_t y1,uint16_t x2, uint16_t y2,  uint16_t color);
 
 /***************************************************************
  * 函数名称: lcd_show_chinese
@@ -228,6 +240,7 @@ void lcd_show_float_num1(uint16_t x, uint16_t y, float num, uint8_t len, uint16_
  * 返 回 值: 无
  ***************************************************************/
 void lcd_show_picture(uint16_t x, uint16_t y, uint16_t length, uint16_t width, const uint8_t *pic);
+
 
 
 #endif /* _LCD_H_ */

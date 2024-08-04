@@ -1,49 +1,54 @@
-/*
- * Copyright (c) 2024 iSoftStone Education Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-#include <stdio.h>
-#include <stdint.h>
-
+#include "drv_sensors.h"
 #include "iot_i2c.h"
+#include "stdint.h"
 #include "iot_errno.h"
 
-/* sht30对应i2c */
-#define SHT30_I2C_PORT EI2C0_M2
-
-/* sht30地址 */
-#define SHT30_I2C_ADDRESS      0x44
+#define I2C_HANDLE EI2C0_M2
+#define SHT30_I2C_ADDRESS 0x44
+#define BH1750_I2C_ADDRESS 0x23
 
 /***************************************************************
-* 函数名称: sht30_init
-* 说    明: 初始化SHT30，设置测量周期
-* 参    数: 无
-* 返 回 值: 无
-***************************************************************/
-void sht30_init(void)
+ * 函数名称: sht30_init
+ * 说    明: sht30初始化
+ * 参    数: 无
+ * 返 回 值: uint32_t IOT_SUCCESS表示成功 IOT_FAILURE表示失败
+ ***************************************************************/
+static uint32_t sht30_init(void)
 {
     uint32_t ret = 0;
     uint8_t send_data[2] = {0x22, 0x36};
     uint32_t send_len = 2;
 
-    ret = IoTI2cInit(SHT30_I2C_PORT, EI2C_FRE_400K);
+    ret = IoTI2cWrite(I2C_HANDLE, SHT30_I2C_ADDRESS, send_data, send_len); 
     if (ret != IOT_SUCCESS)
     {
-        printf("i2c init fail!\r\v");
+        printf("I2c write failure.\r\n");
+        return IOT_FAILURE;
     }
 
-    IoTI2cWrite(SHT30_I2C_PORT, SHT30_I2C_ADDRESS, send_data, send_len); 
+    return IOT_SUCCESS;
+}
+
+/***************************************************************
+ * 函数名称: bh1750_init
+ * 说    明: bh1750初始化
+ * 参    数: 无
+ * 返 回 值: uint32_t IOT_SUCCESS表示成功 IOT_FAILURE表示失败
+ ***************************************************************/
+static uint32_t bh1750_init(void)
+{
+    uint32_t ret = 0;
+    uint8_t send_data[1] = {0x10};
+    uint32_t send_len = 1;
+
+    ret = IoTI2cWrite(I2C_HANDLE, SHT30_I2C_ADDRESS, send_data, send_len); 
+    if (ret != IOT_SUCCESS)
+    {
+        printf("I2c write failure.\r\n");
+        return IOT_FAILURE;
+    }
+
+    return IOT_SUCCESS;
 }
 
 /***************************************************************
@@ -55,14 +60,15 @@ void sht30_init(void)
 static float sht30_calc_RH(uint16_t u16sRH)
 {
     float humidityRH = 0;
-    
+
+    /*clear bits [1..0] (status bits)*/
+    u16sRH &= ~0x0003;
     /*calculate relative humidity [%RH]*/
     /*RH = rawValue / (2^16-1) * 10*/
     humidityRH = (100 * (float)u16sRH / 65535);
 
     return humidityRH;
 }
-
 
 /***************************************************************
 * 函数名称: sht30_calc_temperature
@@ -74,6 +80,8 @@ static float sht30_calc_temperature(uint16_t u16sT)
 {
     float temperature = 0;
 
+    /*clear bits [1..0] (status bits)*/
+    u16sT &= ~0x0003;
     /*calculate temperature [℃]*/
     /*T = -45 + 175 * rawValue / (2^16-1)*/
     temperature = (175 * (float)u16sT / 65535 - 45);
@@ -116,10 +124,10 @@ static uint8_t sht30_check_crc(uint8_t *data, uint8_t nbrOfBytes, uint8_t checks
 /***************************************************************
 * 函数名称: sht30_read_data
 * 说    明: 读取温度、湿度
-* 参    数: dat：读取到的数据 0: 温度 1: 湿度
+* 参    数: temp,humi：读取到的数据,通过指针返回 
 * 返 回 值: 无
 ***************************************************************/
-void sht30_read_data(double *dat)
+void sht30_read_data(double *temp, double *humi)
 {
     /*checksum verification*/
     uint8_t data[3];
@@ -131,10 +139,10 @@ void sht30_read_data(double *dat)
     uint8_t send_data[2] = {0xE0, 0x00};
 
     uint32_t send_len = 2;
-    IoTI2cWrite(SHT30_I2C_PORT, SHT30_I2C_ADDRESS, send_data, send_len);
+    IoTI2cWrite(I2C_HANDLE, SHT30_I2C_ADDRESS, send_data, send_len);
 
     uint32_t receive_len = 6;
-    IoTI2cRead(SHT30_I2C_PORT, SHT30_I2C_ADDRESS, SHT30_Data_Buffer, receive_len);
+    IoTI2cRead(I2C_HANDLE, SHT30_I2C_ADDRESS, SHT30_Data_Buffer, receive_len);
 
     /*check temperature*/
     data[0] = SHT30_Data_Buffer[0];
@@ -144,7 +152,7 @@ void sht30_read_data(double *dat)
     if(!rc)
     {
         tmp = ((uint16_t)data[0] << 8) | data[1];
-        dat[0] = sht30_calc_temperature(tmp);
+        *temp = sht30_calc_temperature(tmp);
     }
     
     /*check humidity*/
@@ -155,6 +163,40 @@ void sht30_read_data(double *dat)
     if(!rc)
     {
         tmp = ((uint16_t)data[0] << 8) | data[1];
-        dat[1] = sht30_calc_RH(tmp);
+        *humi = sht30_calc_RH(tmp);
     }
 }
+
+/***************************************************************
+* 函数名称: bh1750_read_data
+* 说    明: 读取光照强度
+* 参    数: dat：读取到的数据
+* 返 回 值: 无
+***************************************************************/
+void bh1750_read_data(double *dat)
+{
+    uint8_t send_data[1] = {0x10};
+    uint32_t send_len = 1;
+
+    IoTI2cWrite(I2C_HANDLE, BH1750_I2C_ADDRESS, send_data, send_len); 
+
+    uint8_t recv_data[2] = {0};
+    uint32_t receive_len = 2;   
+
+    IoTI2cRead(I2C_HANDLE, BH1750_I2C_ADDRESS, recv_data, receive_len);
+    *dat = (float)(((recv_data[0] << 8) + recv_data[1]) / 1.2);
+}
+
+/***************************************************************
+* 函数名称: i2c_dev_init
+* 说    明: i2c设备初始化
+* 参    数: 无
+* 返 回 值: 无
+***************************************************************/
+void i2c_dev_init(void)
+{
+    IoTI2cInit(I2C_HANDLE, EI2C_FRE_400K);
+    sht30_init();
+    bh1750_init();
+}
+

@@ -19,50 +19,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-enum auto_command
-{
-    auto_state_on = 0x0001,
-    auto_state_off,
-};
-
-enum light_command
-{
-    light_state_on = 0x0101,
-    light_state_off,
-};
-
-enum motor_command
-{
-    motor_state_on = 0x0201,
-    motor_state_off,
-};
-
-enum senror_command
-{
-    temperature_get = 0x0301,
-    humidity_get,
-    illumination_get,
-};
 
 void i2c_dev_init(void);
 void bh1750_read_data(double *dat);
-void sht30_read_data(double *dat);
+void sht30_read_data(double *temp, double *humi);
 
-void light_dev_init(void);
-void light_set_pwm(unsigned int duty);
-void light_set_state(bool state);
+// void light_dev_init(void);
+// void light_set_pwm(unsigned int duty);
+// void light_set_state(bool state);
 
-void motor_dev_init(void);
-void motor_set_pwm(unsigned int duty);
-void motor_set_state(bool state);
+// void motor_dev_init(void);
+// void motor_set_pwm(unsigned int duty);
+// void motor_set_state(bool state);
 
 void lcd_dev_init(void);
-void lcd_load_ui(void);
+void lcd_show_ui(void);
 void lcd_set_temperature(double temperature);
 void lcd_set_humidity(double humidity);
 void lcd_set_illumination(double illumination);
 void lcd_set_light_state(bool state);
 void lcd_set_motor_state(bool state);
 void lcd_set_auto_state(bool state);
+
+void smart_home_su03t_cmd_process(int su03t_cmd);
+void smart_home_iot_cmd_process(int iot_cmd);
+void smart_home_key_press_process(uint8_t key_no);
 
 #endif

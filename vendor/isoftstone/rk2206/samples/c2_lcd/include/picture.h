@@ -24,4 +24,8 @@ extern const unsigned char gImage_light_off[2048];
 extern const unsigned char gImage_fan_off[2048];
 extern const unsigned char gImage_fan_on[2048];
 
+extern const unsigned char gImage_fan[2048];
+extern const unsigned char gImage_duck1[80000];
+extern const unsigned char gImage_duck2[80000];
+
 #endif

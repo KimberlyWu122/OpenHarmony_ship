@@ -159,7 +159,8 @@ static void lcd_show_chinese_12x12(uint16_t x, uint16_t y, uint8_t *s, uint16_t 
 
     for (k = 0; k < HZnum; k++) 
     {
-        if ((tfont12[k].Index[0] == *(s)) && (tfont12[k].Index[1] == *(s+1)))
+        if ((tfont12[k].Index[0] == *(s)) && (tfont12[k].Index[1] == *(s+1))
+            && (tfont12[k].Index[2] == *(s+2)))
         {
             lcd_address_set(x, y, x+sizey-1, y+sizey-1);
             for (i = 0; i < TypefaceNum; i++)
@@ -235,7 +236,8 @@ static void lcd_show_chinese_16x16(uint16_t x, uint16_t y, uint8_t *s, uint16_t 
     
     for (k = 0; k < HZnum; k++) 
     {
-        if ((tfont16[k].Index[0] == *(s)) && (tfont16[k].Index[1] == *(s+1)))
+        if ((tfont16[k].Index[0] == *(s)) && (tfont16[k].Index[1] == *(s+1))
+            && (tfont16[k].Index[2] == *(s+2)))
         {
             lcd_address_set(x, y, x+sizey-1, y+sizey-1);
             for (i = 0; i < TypefaceNum; i++)
@@ -312,7 +314,8 @@ static void lcd_show_chinese_24x24(uint16_t x, uint16_t y, uint8_t *s, uint16_t 
     
     for (k = 0; k < HZnum; k++) 
     {
-        if ((tfont24[k].Index[0] == *(s)) && (tfont24[k].Index[1] == *(s+1)))
+        if ((tfont24[k].Index[0] == *(s)) && (tfont24[k].Index[1] == *(s+1))
+            && (tfont24[k].Index[2] == *(s+2)))
         {
             lcd_address_set(x, y, x+sizey-1, y+sizey-1);
             for (i = 0; i < TypefaceNum; i++)
@@ -389,7 +392,8 @@ static void lcd_show_chinese_32x32(uint16_t x, uint16_t y, uint8_t *s, uint16_t 
     
     for (k = 0; k < HZnum; k++)
     {
-        if ((tfont32[k].Index[0] == *(s)) && (tfont32[k].Index[1] == *(s+1)))
+        if ((tfont32[k].Index[0] == *(s)) && (tfont32[k].Index[1] == *(s+1))
+            && (tfont32[k].Index[2] == *(s+2)))
         {
             lcd_address_set(x, y, x+sizey-1, y+sizey-1);
             for (i = 0; i < TypefaceNum; i++)
@@ -786,6 +790,15 @@ void lcd_draw_circle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color)
         }
     }
 }
+/* 三角形*/
+void lcd_draw_triangle(uint16_t x0, uint16_t y0,uint16_t x1, uint16_t y1,uint16_t x2, uint16_t y2,  uint16_t color){
+
+    lcd_draw_line(x0, y0, x1, y1, color);
+    lcd_draw_line(x1, y1, x2, y2, color);
+    lcd_draw_line(x2, y2, x0, y0, color);
+
+
+}
 
 
 /***************************************************************
@@ -804,31 +817,31 @@ void lcd_draw_circle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color)
 void lcd_show_chinese(uint16_t x, uint16_t y, uint8_t *s, 
     uint16_t fc, uint16_t bc, uint8_t sizey, uint8_t mode)
 {
-    uint8_t buffer[128];
-    uint32_t buffer_len = 0;
-    uint32_t len = strlen(s);
+    // uint8_t buffer[128];
+    // uint32_t buffer_len = 0;
+    // uint32_t len = strlen(s);
 
-    memset(buffer, 0, sizeof(buffer));
-    /* utf8格式汉字转化为ascii格式 */
-    chinese_utf8_to_ascii(s, strlen(s), buffer, &buffer_len);
+    // memset(buffer, 0, sizeof(buffer));
+    // /* utf8格式汉字转化为ascii格式 */
+    // chinese_utf8_to_ascii(s, strlen(s), buffer, &buffer_len);
 
-    for (uint32_t i = 0; i < buffer_len; i += 2, x += sizey)
+    for (uint32_t i = 0; i < strlen(s); i += 3, x += sizey)
     {
         if (sizey == 12)
         {
-            lcd_show_chinese_12x12(x, y, &buffer[i], fc, bc, sizey, mode);
+            lcd_show_chinese_12x12(x, y, &s[i], fc, bc, sizey, mode);
         }
         else if (sizey == 16)
         {
-            lcd_show_chinese_16x16(x, y, &buffer[i], fc, bc, sizey, mode);
+            lcd_show_chinese_16x16(x, y, &s[i], fc, bc, sizey, mode);
         }
         else if (sizey == 24)
         {
-            lcd_show_chinese_24x24(x, y, &buffer[i], fc, bc, sizey, mode);
+            lcd_show_chinese_24x24(x, y, &s[i], fc, bc, sizey, mode);
         }
         else if (sizey == 32)
         {
-            lcd_show_chinese_32x32(x, y, &buffer[i], fc, bc, sizey, mode);
+            lcd_show_chinese_32x32(x, y, &s[i], fc, bc, sizey, mode);
         }
         else
         {
@@ -1055,6 +1068,36 @@ void lcd_show_picture(uint16_t x, uint16_t y, uint16_t length, uint16_t width, c
             lcd_wr_data8(pic[k*2+1]);
             k++;
         }
+    }
+}
+
+
+void lcd_show_text(int x, int y, char *str, int fc, int bc, int font_size, int mode)
+{
+    char *tmp_str = str;
+    int cur_x=x;
+    int cur_y=y;
+
+    while(*tmp_str != '\0')
+    {
+        if(tmp_str[0] > 0){
+            //英文或数字,只占一字节,直接传入对应字符
+            lcd_show_char(cur_x,cur_y,tmp_str[0], fc,bc,font_size, mode);
+            tmp_str++;
+            cur_x += font_size/2;//英文字宽度只有字号一半
+        }else{ 
+            //中文
+            uint8_t cn_str[4]={tmp_str[0],tmp_str[1],tmp_str[2],0};
+            lcd_show_chinese(cur_x,cur_y,cn_str, fc,bc,font_size, mode);
+            tmp_str +=3;
+            cur_x += font_size;
+        }
+        
+        if(cur_x > LCD_H-font_size)
+		{
+			cur_x=0;
+			cur_y+=font_size;
+		}
     }
 }
 

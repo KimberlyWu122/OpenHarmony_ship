@@ -19,6 +19,7 @@
 
 extern const unsigned char gImage_isoftstone[IMAGE_MAXSIZE_ISOFTSTONE];
 
+
 void lcd_show_text(int x, int y, char *str, int fc, int bc, int font_size, int mode)
 {
     char *tmp_str = str;
@@ -34,7 +35,7 @@ void lcd_show_text(int x, int y, char *str, int fc, int bc, int font_size, int m
             cur_x += font_size/2;//英文字宽度只有字号一半
         }else{ 
             //中文
-            uint8_t cn_str[4]={tmp_str[0],tmp_str[1],tmp_str[3],0};
+            uint8_t cn_str[4]={tmp_str[0],tmp_str[1],tmp_str[2],0};
             lcd_show_chinese(cur_x,cur_y,cn_str, fc,bc,font_size, mode);
             tmp_str +=3;
             cur_x += font_size;
@@ -48,6 +49,8 @@ void lcd_show_text(int x, int y, char *str, int fc, int bc, int font_size, int m
     }
 }
 
+extern float g_humi;
+extern float g_temp;
 
 /***************************************************************
 * 函数名称: lcd_process
@@ -70,11 +73,11 @@ void lcd_process(void *arg)
     }
     
     lcd_fill(0, 0, LCD_W, LCD_H, LCD_WHITE);
-    
+    int count =0;
     while (1)
     {
         printf("************Lcd Example***********\n");
-        lcd_show_picture(15, 0, 210, 62, &gImage_isoftstone[0]);
+       /* lcd_show_picture(15, 0, 210, 62, &gImage_isoftstone[0]); 
         lcd_show_string(0, 70, "Welcome to TX-SMART-R!", LCD_RED, LCD_WHITE, 16, 0);
         lcd_show_string(0, 88, "URL: https://www.issedu.com/", LCD_RED, LCD_WHITE, 16, 0);
         lcd_show_chinese(0, 108,"开源鸿蒙" , LCD_RED, LCD_GRAY, 32, 0);
@@ -86,17 +89,32 @@ void lcd_process(void *arg)
         lcd_show_string(0, 190, "Increaseing Num:", LCD_BLACK, LCD_WHITE, 16, 0);
         lcd_show_float_num1(128, 190, t, 4, LCD_BLACK, LCD_WHITE, 16);
         t += 0.11;
+*/
+    // if(count++%2==0){
+    //     lcd_show_picture(15, 0, 200, 200, &gImage_duck1[0]);
+    // }else{
+    //     lcd_show_picture(15, 0, 200, 200, &gImage_duck2[0]);
+    // }
+        
+        // lcd_draw_circle(80,80,40,LCD_RED);
+        // lcd_draw_rectangle(100,40,160,80,LCD_BROWN);
+        // lcd_draw_triangle(160,100,180,40,180,100,LCD_MAGENTA);
+        // lcd_show_chinese(100, 120, "鸿蒙", LCD_RED, LCD_GRAYBLUE, 16, 0);
 
-        lcd_fill(0, 220, LCD_W, LCD_H, LCD_WHITE);
-        lcd_show_chinese(0, 220, chinese_string, LCD_RED, LCD_GRAYBLUE, cur_sizey, 0);
-        if (cur_sizey == 12)
-            cur_sizey = 16;
-        else if(cur_sizey == 16)
-            cur_sizey = 24;
-        else if(cur_sizey == 24)
-            cur_sizey = 32;
-        else
-            cur_sizey = 12;
+        // lcd_fill(0, 220, LCD_W, LCD_H, LCD_WHITE);
+        // lcd_show_chinese(0, 220, chinese_string, LCD_RED, LCD_GRAYBLUE, cur_sizey, 0);
+        // if (cur_sizey == 12)
+        //     cur_sizey = 16;
+        // else if(cur_sizey == 16)
+        //     cur_sizey = 24;
+        // else if(cur_sizey == 24)
+        //     cur_sizey = 32;
+        // else
+        //     cur_sizey = 12;
+
+        char temp_str[20]={0};
+        sprintf(temp_str,"温度:%f",g_temp);
+        lcd_show_text(0,0,temp_str,LCD_RED,LCD_WHITE,16,0);
 
         printf("\n");
         LOS_Msleep(1000);

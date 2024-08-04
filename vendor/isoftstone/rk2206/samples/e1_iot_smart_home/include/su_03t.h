@@ -16,6 +16,33 @@
 #ifndef __SU_03T_H__
 #define __SU_03T_H__
 
+
+enum auto_command
+{
+    auto_state_on = 0x0001,
+    auto_state_off,
+};
+
+enum light_command
+{
+    light_state_on = 0x0101,
+    light_state_off,
+};
+
+enum motor_command
+{
+    motor_state_on = 0x0201,
+    motor_state_off,
+};
+
+enum senror_command
+{
+    temperature_get = 0x0301,
+    humidity_get,
+    illumination_get,
+};
+
+
 void su03t_init(void);
 
 #endif

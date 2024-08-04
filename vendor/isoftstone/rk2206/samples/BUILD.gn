@@ -15,10 +15,9 @@ import("//build/lite/config/component/lite_component.gni")
 
 lite_component("app") {
     features = [
-        # "hello:hello" , 
 
         # 内核类
-        # "./a1_kernal_task:task_example",
+        # "a1_kernel_task:task_example",
         # "./a2_kernel_semaphore:semaphore_example",
         # "./a3_kernel_timer:timer_example",
         # "./a4_kernel_mutex:mutex_example",
@@ -26,12 +25,14 @@ lite_component("app") {
         # "./a6_kernel_event:event_example",
         # "./a7_hal_file:hal_file_example",
         # "./a8_hal_dir:hal_dir_example",
+        # "a9_kv_store:kv_store_example" ,
+        # "a10_flash:flash_example" ,
 
         # 基础外设类
         # "./b1_gpio:gpio_example",
         # "./b2_gpio_interrupt:gpio_interrupt_example",
         # "./b2_key_scan:key_scan_example" ,
-        # "./b3_adc:adc_example",
+        # "./b3_adc_key:adc_example",
         # "./b4_uart0:uart_example",
         # "./b5_uart2:uart2_example",
         # "./b6_i2c_scan:i2c_scan_example",
@@ -42,9 +43,9 @@ lite_component("app") {
         # "./b11_wifi_tcp:wifi_tcp_example",
         # "./b12_watchdog:watchdog_example",
         # "./b13_reboot:reboot_example",
-        # "./b14_wifi_ap:wifi_AP" ,
-        # "./b14_wifi_ap_tcp_server:wifi_tcp_example" ,
-        # "./b15_wifi_pair:wifi_pair" ,
+        # "./b14_wifi_ap_tcp_server:wifi_AP_tcp_server" ,
+        # "./b15_wifi_ap_udp_server:wifi_AP_udp_server" ,
+        # "./b16_wifi_pair:wifi_pair" ,
 
         # 基础设备类
         # "./c1_gas_sensor:gas_sensor_example",
@@ -57,11 +58,10 @@ lite_component("app") {
 
         # 综合实验类
         # "./d1_smart_home:smart_home_example",
-
         # "./d2_smart_security:smart_security_example",
 
         # Iot综合实验类
-        "./e1_iot_smart_home:iot_smart_hone_example",
+        "./e1_iot_smart_home:iot_smart_home_example",
         # "./e2_iot_smart_security:iot_smart_security_example",
     ]
 

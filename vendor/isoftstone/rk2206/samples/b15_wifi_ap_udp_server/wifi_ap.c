@@ -136,7 +136,7 @@ int AP_task(WifiLinkedInfo *info)
     set_wifi_config_mode(printf, "AP");
     SetApModeOn();
 
-    wifi_udp_server(NULL);
+    // wifi_udp_server(NULL);
 }
 
 void wifi_ap_example(void)

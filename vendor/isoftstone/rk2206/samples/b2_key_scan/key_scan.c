@@ -58,7 +58,7 @@ void gpio_process()
     IoTGpioSetDir(GPIO_KEY_UP, IOT_GPIO_DIR_IN);
     /* is_pressed 0:未按下 1:按下 */
     int is_pressed = NO_PRESSED;
-    
+    int count =0;
     while (1)
     {
         IotGpioValue val;
@@ -77,6 +77,15 @@ void gpio_process()
             /* 判断当按键松开时是否已经处理过 */
                 is_pressed = NO_PRESSED;
                 printf("no pressed\n");
+        }else if((val == 0) &&(is_pressed == PRESSED)){
+                count++;
+                if(count>=100){
+                    printf("long press >5s");
+                    /*重启的api*/
+                          
+                    RebootDevice(3);
+                }
+
         }
         /* 睡眠50毫秒 */
         LOS_Msleep(50);

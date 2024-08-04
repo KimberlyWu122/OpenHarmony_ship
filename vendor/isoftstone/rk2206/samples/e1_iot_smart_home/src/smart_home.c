@@ -19,310 +19,174 @@
 #include <stdbool.h>
 
 #include "iot_errno.h"
-#include "iot_i2c.h"
+
 #include "iot_pwm.h"
 #include "iot_gpio.h"
-
+#include "su_03t.h"
+#include "iot.h"
 #include "lcd.h"
+#include "picture.h"
+#include "adc_key.h"
+#include "components.h"
+#include "lcd.h"
+#include "string.h"
 
-#define I2C_HANDLE EI2C0_M2
-#define MOTOR_PWM_HANDLE EPWMDEV_PWM6_M0
-#define LED_R_GPIO_HANDLE GPIO0_PB5
-#define LED_G_GPIO_HANDLE GPIO0_PB4
-#define LED_B_GPIO_HANDLE GPIO1_PD0
+static bool auto_state = false;
+static bool network_state = false;
 
-#define SHT30_I2C_ADDRESS 0x44
-#define BH1750_I2C_ADDRESS 0x23
+void light_menu_entry(lcd_menu_t *menu);
+void fan_menu_entry(lcd_menu_t *menu);
 
-/***************************************************************
- * 函数名称: sht30_init
- * 说    明: sht30初始化
- * 参    数: 无
- * 返 回 值: uint32_t IOT_SUCCESS表示成功 IOT_FAILURE表示失败
- ***************************************************************/
-static uint32_t sht30_init(void)
+/* 风扇菜单的数据初始化*/
+lcd_menu_t fan_menu={
+    .img={
+        .img=img_fan_off,
+        .height=64,
+        .width=64,
+    },
+    .is_selected=false,
+    .text={
+        .fc=LCD_MAGENTA,
+        .bc=LCD_WHITE,
+        .font_size=24,
+        .name="灯光关",
+    },
+    .enterFunc=fan_menu_entry,
+    .exitFunc=NULL,
+    .base_x=100,
+    .base_y=64,
+ 
+};
+
+/* 照明灯的菜单初始化数据*/
+lcd_menu_t light_menu={
+    .img={
+        .img= img_light_off,
+        .height=64,
+        .width=64,
+    },
+    .is_selected=false,
+    .text={
+        .fc=LCD_MAGENTA,
+        .bc=LCD_WHITE,
+        .font_size=24,
+        .name="灯光关",
+    },
+    .base_x=20,
+    .base_y=64,
+    .enterFunc=light_menu_entry,
+    .exitFunc=NULL,
+};
+
+/* 温度面板的初始化数据*/
+lcd_display_board_t temp_db={
+    .img={
+        .img= img_temp_normal,
+        .height=48,
+        .width=48,
+    },
+    .text={
+        .fc=LCD_MAGENTA,
+        .bc=LCD_WHITE,
+        .font_size=24,
+        .name="25.5°C",
+    },
+    .base_x=180,
+    .base_y=64,
+};
+
+/* 湿度面板的初始化数据*/
+lcd_display_board_t humi_db={
+    .img={
+        .img= img_humi,
+        .height=48,
+        .width=48,
+    },
+    .text={
+        .fc=LCD_MAGENTA,
+        .bc=LCD_WHITE,
+        .font_size=24,
+        .name="25.5°C",
+    },
+    .base_x=180,
+    .base_y=120,
+};
+
+/* 亮度面板的初始化数据*/
+lcd_display_board_t lum_db={
+    .img={
+        .img= img_lum,
+        .height=48,
+        .width=48,
+    },
+    .text={
+        .fc=LCD_MAGENTA,
+        .bc=LCD_WHITE,
+        .font_size=24,
+        .name="1234Lx",
+    },
+    .base_x=180,
+    .base_y=174,
+};
+/* 所有的面板集合数组,方便遍历查询*/
+lcd_display_board_t *lcd_dbs[] ={&temp_db,&humi_db,&lum_db};
+/* 所有的菜单集合数组,方便遍历查询*/*/
+lcd_menu_t *lcd_menus[] = {&light_menu,&fan_menu};
+/* 菜单的个数*/
+static int lcd_menu_number =  sizeof(lcd_menus)/sizeof(lcd_menu_t *);
+/* 菜单的当前选中索引,在数组中的位置*/
+static int menu_select_index = 0;
+
+//菜单左和右的处理,需要考虑菜单个数的边界
+void lcd_menu_selected_move_left()
 {
-    uint32_t ret = 0;
-    uint8_t send_data[2] = {0x22, 0x36};
-    uint32_t send_len = 2;
-
-    ret = IoTI2cWrite(I2C_HANDLE, SHT30_I2C_ADDRESS, send_data, send_len); 
-    if (ret != IOT_SUCCESS)
-    {
-        printf("I2c write failure.\r\n");
-        return IOT_FAILURE;
-    }
-
-    return IOT_SUCCESS;
-}
-
-/***************************************************************
- * 函数名称: bh1750_init
- * 说    明: bh1750初始化
- * 参    数: 无
- * 返 回 值: uint32_t IOT_SUCCESS表示成功 IOT_FAILURE表示失败
- ***************************************************************/
-static uint32_t bh1750_init(void)
-{
-    uint32_t ret = 0;
-    uint8_t send_data[1] = {0x10};
-    uint32_t send_len = 1;
-
-    ret = IoTI2cWrite(I2C_HANDLE, SHT30_I2C_ADDRESS, send_data, send_len); 
-    if (ret != IOT_SUCCESS)
-    {
-        printf("I2c write failure.\r\n");
-        return IOT_FAILURE;
-    }
-
-    return IOT_SUCCESS;
-}
-
-/***************************************************************
-* 函数名称: sht30_calc_RH
-* 说    明: 湿度计算
-* 参    数: u16sRH：读取到的湿度原始数据
-* 返 回 值: 计算后的湿度数据
-***************************************************************/
-static float sht30_calc_RH(uint16_t u16sRH)
-{
-    float humidityRH = 0;
-
-    /*clear bits [1..0] (status bits)*/
-    u16sRH &= ~0x0003;
-    /*calculate relative humidity [%RH]*/
-    /*RH = rawValue / (2^16-1) * 10*/
-    humidityRH = (100 * (float)u16sRH / 65535);
-
-    return humidityRH;
-}
-
-/***************************************************************
-* 函数名称: sht30_calc_temperature
-* 说    明: 温度计算
-* 参    数: u16sT：读取到的温度原始数据
-* 返 回 值: 计算后的温度数据
-***************************************************************/
-static float sht30_calc_temperature(uint16_t u16sT)
-{
-    float temperature = 0;
-
-    /*clear bits [1..0] (status bits)*/
-    u16sT &= ~0x0003;
-    /*calculate temperature [℃]*/
-    /*T = -45 + 175 * rawValue / (2^16-1)*/
-    temperature = (175 * (float)u16sT / 65535 - 45);
-
-    return temperature;
-}
-
-/***************************************************************
-* 函数名称: sht30_check_crc
-* 说    明: 检查数据正确性
-* 参    数: data：读取到的数据
-            nbrOfBytes：需要校验的数量
-            checksum：读取到的校对比验值
-* 返 回 值: 校验结果，0-成功 1-失败
-***************************************************************/
-static uint8_t sht30_check_crc(uint8_t *data, uint8_t nbrOfBytes, uint8_t checksum)
-{
-    uint8_t crc = 0xFF;
-    uint8_t bit = 0;
-    uint8_t byteCtr ;
-    const int16_t POLYNOMIAL = 0x131;
-
-    /*calculates 8-Bit checksum with given polynomial*/
-    for(byteCtr = 0; byteCtr < nbrOfBytes; ++byteCtr)
-    {
-        crc ^= (data[byteCtr]);
-        for ( bit = 8; bit > 0; --bit)
-        {
-            if (crc & 0x80) crc = (crc << 1) ^ POLYNOMIAL;
-            else crc = (crc << 1);
-        }
-    }
-
-    if(crc != checksum)
-        return 1;
-    else
-        return 0;
-}
-
-/***************************************************************
-* 函数名称: sht30_read_data
-* 说    明: 读取温度、湿度
-* 参    数: dat：读取到的数据 0: 温度 1: 湿度
-* 返 回 值: 无
-***************************************************************/
-void sht30_read_data(double *dat)
-{
-    /*checksum verification*/
-    uint8_t data[3];
-    uint16_t tmp;
-    uint8_t rc;
-    /*byte 0,1 is temperature byte 4,5 is humidity*/
-    uint8_t SHT30_Data_Buffer[6];
-    memset(SHT30_Data_Buffer, 0, 6);
-    uint8_t send_data[2] = {0xE0, 0x00};
-
-    uint32_t send_len = 2;
-    IoTI2cWrite(I2C_HANDLE, SHT30_I2C_ADDRESS, send_data, send_len);
-
-    uint32_t receive_len = 6;
-    IoTI2cRead(I2C_HANDLE, SHT30_I2C_ADDRESS, SHT30_Data_Buffer, receive_len);
-
-    /*check temperature*/
-    data[0] = SHT30_Data_Buffer[0];
-    data[1] = SHT30_Data_Buffer[1];
-    data[2] = SHT30_Data_Buffer[2];
-    rc = sht30_check_crc(data, 2, data[2]);
-    if(!rc)
-    {
-        tmp = ((uint16_t)data[0] << 8) | data[1];
-        dat[0] = sht30_calc_temperature(tmp);
-    }
-    
-    /*check humidity*/
-    data[0] = SHT30_Data_Buffer[3];
-    data[1] = SHT30_Data_Buffer[4];
-    data[2] = SHT30_Data_Buffer[5];
-    rc = sht30_check_crc(data, 2, data[2]);
-    if(!rc)
-    {
-        tmp = ((uint16_t)data[0] << 8) | data[1];
-        dat[1] = sht30_calc_RH(tmp);
+    if(menu_select_index > 0){
+        menu_select_index--;
     }
 }
 
-/***************************************************************
-* 函数名称: bh1750_read_data
-* 说    明: 读取光照强度
-* 参    数: dat：读取到的数据
-* 返 回 值: 无
-***************************************************************/
-void bh1750_read_data(double *dat)
+void lcd_menu_selected_move_right()
 {
-    uint8_t send_data[1] = {0x10};
-    uint32_t send_len = 1;
-
-    IoTI2cWrite(I2C_HANDLE, BH1750_I2C_ADDRESS, send_data, send_len); 
-
-    uint8_t recv_data[2] = {0};
-    uint32_t receive_len = 2;   
-
-    IoTI2cRead(I2C_HANDLE, BH1750_I2C_ADDRESS, recv_data, receive_len);
-    *dat = (float)(((recv_data[0] << 8) + recv_data[1]) / 1.2);
-}
-
-/***************************************************************
-* 函数名称: i2c_dev_init
-* 说    明: i2c设备初始化
-* 参    数: 无
-* 返 回 值: 无
-***************************************************************/
-void i2c_dev_init(void)
-{
-    IoTI2cInit(I2C_HANDLE, EI2C_FRE_400K);
-    sht30_init();
-    bh1750_init();
-}
-
-/***************************************************************
-* 函数名称: light_dev_init
-* 说    明: rgb灯设备初始化
-* 参    数: 无
-* 返 回 值: 无
-***************************************************************/
-void light_dev_init(void)
-{
-    IoTGpioInit(LED_R_GPIO_HANDLE);
-    IoTGpioInit(LED_G_GPIO_HANDLE);
-    IoTGpioInit(LED_B_GPIO_HANDLE);
-    IoTGpioSetDir(LED_R_GPIO_HANDLE, IOT_GPIO_DIR_OUT);
-    IoTGpioSetDir(LED_G_GPIO_HANDLE, IOT_GPIO_DIR_OUT);
-    IoTGpioSetDir(LED_B_GPIO_HANDLE, IOT_GPIO_DIR_OUT);
-}
-
-/***************************************************************
-* 函数名称: light_set_state
-* 说    明: 控制灯状态
-* 参    数: bool state true：打开 false：关闭
-* 返 回 值: 无
-***************************************************************/
-void light_set_state(bool state)
-{
-    static bool last_state = false;
-
-    if (state == last_state)
-    {
-        return;
+    if(menu_select_index <lcd_menu_number-1){
+        menu_select_index++;
     }
-
-    if (state)
-    {
-        IoTGpioSetOutputVal(LED_R_GPIO_HANDLE, IOT_GPIO_VALUE1);
-        IoTGpioSetOutputVal(LED_G_GPIO_HANDLE, IOT_GPIO_VALUE1);
-        IoTGpioSetOutputVal(LED_B_GPIO_HANDLE, IOT_GPIO_VALUE1);
-    }
-    else
-    {
-        IoTGpioSetOutputVal(LED_R_GPIO_HANDLE, IOT_GPIO_VALUE0);
-        IoTGpioSetOutputVal(LED_G_GPIO_HANDLE, IOT_GPIO_VALUE0);
-        IoTGpioSetOutputVal(LED_B_GPIO_HANDLE, IOT_GPIO_VALUE0);
-    }
-
-    last_state = state;
 }
 
-/***************************************************************
-* 函数名称: motor_dev_init
-* 说    明: 电机初始化
-* 参    数: 无
-* 返 回 值: 无
-***************************************************************/
-void motor_dev_init(void)
+/**
+ * @brief 照明灯菜单按下确认按键
+ * 
+ * @param menu 
+ */
+void light_menu_entry(lcd_menu_t *menu)
 {
-    IoTPwmInit(MOTOR_PWM_HANDLE);
-}
-
-/***************************************************************
-* 函数名称: motor_set_pwm
-* 说    明: 设置电机pwm占空比
-* 参    数: unsigned int duty 占空比
-* 返 回 值: 无
-***************************************************************/
-void motor_set_pwm(unsigned int duty)
-{
-    IoTPwmStart(MOTOR_PWM_HANDLE, duty, 1000);
-}
-
-/***************************************************************
-* 函数名称: motor_set_state
-* 说    明: 控制电机状态
-* 参    数: bool state true：打开 false：关闭
-* 返 回 值: 无
-***************************************************************/
-void motor_set_state(bool state)
-{
-    static bool last_state = false;
-
-    if (state == last_state)
+    int light_state = get_light_state();
+    if(light_state)
     {
-        return;
+        light_set_state(false);
+        lcd_set_light_state(false);
+    }else{
+        light_set_state(true);
+        lcd_set_light_state(true);
     }
-
-    if (state)
-    {
-        motor_set_pwm(20);
-    }
-    else
-    {
-        motor_set_pwm(1);
-        IoTPwmStop(MOTOR_PWM_HANDLE);
-    } 
-
-    last_state = state;
 }
+/**
+ * @brief  风扇菜单按下确认按键
+ * 
+ * @param menu 
+ */
+void fan_menu_entry(lcd_menu_t *menu)
+{
+   int motor_state = get_motor_state();
+   if(motor_state)
+   {
+       motor_set_state(false);
+       lcd_set_motor_state(false);
+   }else{
+       motor_set_state(true);
+       lcd_set_motor_state(true);
+   }
+}
+
 
 /***************************************************************
 * 函数名称: lcd_dev_init
@@ -336,33 +200,128 @@ void lcd_dev_init(void)
     lcd_fill(0, 0, LCD_W, LCD_H, LCD_WHITE);
 }
 
+/**
+ * @brief 按键处理函数
+ * 
+ * @param key_no 按键号
+ */
+void smart_home_key_process(int key_no)
+{
+    printf("smart_home_key_process:%d\n",key_no);
+    if(key_no == KEY_UP){
+
+    }else if(key_no == KEY_DOWN){
+        lcd_menu_entry(lcd_menus[menu_select_index]);
+
+    }else if(key_no == KEY_LEFT){
+        
+        lcd_menu_selected_move_left();
+    }else if(key_no == KEY_RIGHT){
+        lcd_menu_selected_move_right();
+    }
+}
+/**
+ * @brief 物联网的指令处理函数
+ * 
+ * @param iot_cmd iot的指令
+ */
+void smart_home_iot_cmd_process(int iot_cmd)
+{
+    switch (iot_cmd)
+    {
+        case IOT_CMD_LIGHT_ON:
+            light_set_state(true);
+            lcd_set_light_state(true);
+            break;
+        case IOT_CMD_LIGHT_OFF:
+            light_set_state(false);
+            lcd_set_light_state(false);
+            break;
+        case IOT_CMD_MOTOR_ON:
+            motor_set_state(true);
+            lcd_set_motor_state(true);
+            break;
+        case IOT_CMD_MOTOR_OFF:
+            motor_set_state(false);
+            lcd_set_motor_state(false);
+            break;
+    }
+}
+
+/**
+ * @brief 语音管家发出的指令
+ * 
+ * @param su03t_cmd 语音管家的指令
+ */
+void smart_home_su03t_cmd_process(int su03t_cmd)
+{
+    switch (su03t_cmd)
+    {
+        case light_state_on:
+            light_set_state(true);
+            lcd_set_light_state(true);
+            break;
+        case light_state_off:
+            light_set_state(false);
+            lcd_set_light_state(false);
+            break;
+        case motor_state_on:
+            motor_set_state(true);
+            lcd_set_motor_state(true);
+            break;
+        case motor_state_off:
+            motor_set_state(false);
+            lcd_set_motor_state(false);
+            break;
+        case temperature_get:
+        {
+            double temp,humi;
+
+            sht30_read_data(&temp, &humi);
+            su03t_send_double_msg(1, temp);
+        }
+            
+            break;
+        case humidity_get:
+        {
+            double temp,humi;
+            sht30_read_data(&temp, &humi);
+
+            su03t_send_double_msg(2, humi);
+        }
+            break;
+        case illumination_get:
+        {
+            double lum;
+            bh1750_read_data(&lum);
+            su03t_send_double_msg(3, lum);
+        }
+            
+            break;
+        default:
+            break;
+    }
+}
+
+
 /***************************************************************
 * 函数名称: lcd_load_ui
 * 说    明: 加载lcd ui
 * 参    数: 无
 * 返 回 值: 无
 ***************************************************************/
-void lcd_load_ui(void)
+void lcd_show_ui(void)
 {
+
     lcd_show_chinese(96, 0, "智慧家居", LCD_RED, LCD_WHITE, 32, 0);
-    lcd_draw_line(0, 33, LCD_W, 33, LCD_BLACK);
-    lcd_show_chinese(5, 34, "传感器数据", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_string(125, 34, ": ", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_chinese(5, 58, "温度    ", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_chinese(5, 82, "湿度    ", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_chinese(5, 106, "光照强度", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_chinese(221, 58, "℃", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_string(221, 82, "%", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_string(221, 106, "Lux", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_draw_line(0, 131, LCD_W, 131, LCD_BLACK);
-    lcd_show_chinese(5, 132, "设备状态", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_string(101, 132, ": ", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_chinese(5, 156, "灯光", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_string(53, 156, ": ", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_chinese(5, 180, "电机", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_string(53, 180, ": ", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_chinese(5, 204, "自动", LCD_RED, LCD_WHITE, 24, 0);
-    lcd_show_string(53, 204, ": ", LCD_RED, LCD_WHITE, 24, 0);
+    lcd_show_picture(280,0, 32,32, network_state? img_wifi_on : img_wifi_off);
+
+    lcd_menu_update(lcd_menus ,lcd_menu_number,menu_select_index);
+
+    lcd_menu_show(lcd_menus ,  lcd_menu_number);
+    lcd_db_show(lcd_dbs, sizeof(lcd_dbs)/sizeof(lcd_display_board_t *));
+
+    lcd_show_picture(0,176,177,58, img_logo);
 }
 
 /***************************************************************
@@ -373,11 +332,18 @@ void lcd_load_ui(void)
 ***************************************************************/
 void lcd_set_temperature(double temperature)
 {
-    uint8_t buf[50] = {0};
-
-    sprintf(buf, ": %.2f ", temperature);
-
-    lcd_show_string(101, 58, buf, LCD_RED, LCD_WHITE, 24, 0);
+    sprintf(temp_db.text.name, "%.01f℃ ", temperature);
+    /* 对温度做高温和正常的区分*/
+    if(temperature > 35)
+    {
+        temp_db.text.fc = LCD_RED;
+        temp_db.img.img = img_temp_high;
+    }
+    else
+    {
+       temp_db.text.fc = LCD_MAGENTA;
+       temp_db.img.img = img_temp_normal;
+    }
 }
 
 /***************************************************************
@@ -388,11 +354,8 @@ void lcd_set_temperature(double temperature)
 ***************************************************************/
 void lcd_set_humidity(double humidity)
 {
-    uint8_t buf[50] = {0};
+    sprintf(humi_db.text.name, "%.01f%% ", humidity);
 
-    sprintf(buf, ": %.2f ", humidity);
-
-    lcd_show_string(101, 82, buf, LCD_RED, LCD_WHITE, 24, 0);
 }
 
 /***************************************************************
@@ -403,11 +366,12 @@ void lcd_set_humidity(double humidity)
 ***************************************************************/
 void lcd_set_illumination(double illumination)
 {
-    uint8_t buf[50] = {0};
+    sprintf(lum_db.text.name, "%.01fLx ", illumination);
 
-    sprintf(buf, ": %.2f ", illumination);
+}
 
-    lcd_show_string(101, 106, buf, LCD_RED, LCD_WHITE, 24, 0);
+void lcd_set_network_state(int state){
+    network_state = state;
 }
 
 /***************************************************************
@@ -418,14 +382,9 @@ void lcd_set_illumination(double illumination)
 ***************************************************************/
 void lcd_set_light_state(bool state)
 {
-    if (state)
-    {
-        lcd_show_chinese(77, 156, "开启", LCD_RED, LCD_WHITE, 24, 0);
-    }
-    else
-    {
-        lcd_show_chinese(77, 156, "关闭", LCD_RED, LCD_WHITE, 24, 0);
-    }
+    
+    strcpy(light_menu.text.name,state? "灯光开" :"灯光关");
+    light_menu.img.img = state? img_light_on : img_light_off;
 }
 
 /***************************************************************
@@ -436,14 +395,10 @@ void lcd_set_light_state(bool state)
 ***************************************************************/
 void lcd_set_motor_state(bool state)
 {
-    if (state)
-    {
-        lcd_show_chinese(77, 180, "开启", LCD_RED, LCD_WHITE, 24, 0);
-    }
-    else
-    {
-        lcd_show_chinese(77, 180, "关闭", LCD_RED, LCD_WHITE, 24, 0);
-    }
+
+    strcpy(fan_menu.text.name,state? "风扇开" :"风扇关");
+    fan_menu.img.img = state? img_fan_on : img_fan_off;
+
 }
 
 /***************************************************************
@@ -454,12 +409,15 @@ void lcd_set_motor_state(bool state)
 ***************************************************************/
 void lcd_set_auto_state(bool state)
 {
-    if (state)
-    {
-        lcd_show_chinese(77, 204, "开启", LCD_RED, LCD_WHITE, 24, 0);
-    }
-    else
-    {
-        lcd_show_chinese(77, 204, "关闭", LCD_RED, LCD_WHITE, 24, 0);
-    }
+
+
+
+    // if (state)
+    // {
+    //     lcd_show_chinese(77, 204, "开启", LCD_RED, LCD_WHITE, 24, 0);
+    // }
+    // else
+    // {
+    //     lcd_show_chinese(77, 204, "关闭", LCD_RED, LCD_WHITE, 24, 0);
+    // }
 }

@@ -14,7 +14,7 @@
 import("//drivers/adapter/khdf/liteos_m/hdf.gni")
 import("//device/rockchip/rk2206/sdk_liteos/board.gni")
 
-static_library("wifi_tcp_example") {
+static_library("wifi_AP_tcp_server") {
     sources = [
         "wifi_tcp_example.c",
     ]

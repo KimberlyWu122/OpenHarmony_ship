@@ -11,18 +11,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-static_library("iot_smart_hone_example") {
+static_library("iot_smart_home_example") {
   sources = [
-    "iot_smart_hone_example.c",
+    "iot_smart_home_example.c",
     "src/lcd.c",
+    "src/components.c",
     "src/smart_home.c",
+    "src/smart_home_event.c",
     "src/su_03t.c",
-    "src/iot.c"
+    "src/iot.c" ,
+    "src/picture.c" ,
+    "src/adc_key.c" ,
+    "src/drv_light.c",
+    "src/drv_motor.c",
+    "src/drv_sensors.c",
   ]
 
   include_dirs = [
     "//utils/native/lite/include",
     "include",
+    "src/include" ,
     "//base/iot_hardware/peripheral/interfaces/kits",
     "//device/rockchip/rk2206/adapter/include",
     "//device/rockchip/rk2206/sdk_liteos/board/include",

@@ -16,6 +16,8 @@
 #include "los_task.h"
 #include "ohos_init.h"
 
+
+unsigned int thread_id1;
 /***************************************************************
 * 函数名称: task_one
 * 说    明: 线程函数1
@@ -39,10 +41,24 @@ void task_one()
 ***************************************************************/
 void task_two()
 {
+    int count = 0;
     while (1)
     {
         printf("This is %s\n", __func__);
         LOS_Msleep(2000);
+        count++;
+
+        if (count >= 5)
+        {
+            UINT32 taskStatus;
+            UINT32 ret=LOS_TaskStatusGet(thread_id1, &taskStatus);
+            printf("ret = %d\r\n",ret);
+            if((ret == LOS_OK) &&
+            (taskStatus != OS_TASK_STATUS_EXIT)){
+                printf("delete task 1\n");
+                LOS_TaskDelete(thread_id1);
+            }
+        }
     }
 }
 
@@ -54,7 +70,7 @@ void task_two()
 ***************************************************************/
 void task_example()
 {
-    unsigned int thread_id1;
+    
     unsigned int thread_id2;
     TSK_INIT_PARAM_S task1 = {0};
     TSK_INIT_PARAM_S task2 = {0};
@@ -63,7 +79,7 @@ void task_example()
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)task_one;
     task1.uwStackSize = 2048;
     task1.pcName = "Task_One";
-    task1.usTaskPrio = 24;
+    task1.usTaskPrio = 26;
     ret = LOS_TaskCreate(&thread_id1, &task1);
     if (ret != LOS_OK)
     {

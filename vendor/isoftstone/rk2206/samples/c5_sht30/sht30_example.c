@@ -17,6 +17,10 @@
 #include "ohos_init.h"
 #include "sht30.h"
 
+
+
+float g_humi;
+float g_temp;
 /***************************************************************
  * 函数名称: sht30_proress
  * 说    明: sht30实验
@@ -38,6 +42,9 @@ void sht30_proress(void *arg)
         sht30_read_data(sht30_data);
 
         printf("temperature %.2f RH %.2f \r\n", sht30_data[0], sht30_data[1]);
+
+        g_temp = sht30_data[0];
+        g_humi = sht30_data[1];
 
         printf("\r\n");
 

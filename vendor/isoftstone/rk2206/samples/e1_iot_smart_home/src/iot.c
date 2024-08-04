@@ -23,6 +23,7 @@
 #include "iot.h"
 #include "los_task.h"
 #include "ohos_init.h"
+#include "smart_home_event.h"
 
 #define MQTT_DEVICES_PWD "12345678"
 
@@ -81,6 +82,7 @@ void send_msg_to_mqtt(e_iot_data *iot_data) {
     // 光照强度
     sprintf(str, "%5.2fLux", iot_data->illumination);
     cJSON_AddStringToObject(pro_obj, "illumination", str);
+    // cJSON_AddNumberToObject(pro_obj, "illumination", iot_data->illumination);
     // 温度
     sprintf(str, "%5.2f℃", iot_data->temperature);
     cJSON_AddStringToObject(pro_obj, "temperature", str);
@@ -139,15 +141,21 @@ void set_light_state(cJSON *root) {
   cJSON *status_obj = NULL;
   char *value = NULL;
 
+  event_info_t event={0};
+  event.event=event_iot_cmd;
+
   para_obj = cJSON_GetObjectItem(root, "paras");
   status_obj = cJSON_GetObjectItem(para_obj, "onoff");
   if (status_obj != NULL) {
     value = cJSON_GetStringValue(status_obj);
     if (!strcmp(value, "ON")) {
-      light_state = true;
+      event.data.iot_data = IOT_CMD_LIGHT_ON;
+      // light_state = true;
     } else if (!strcmp(value, "OFF")) {
-      light_state = false;
+      event.data.iot_data = IOT_CMD_LIGHT_OFF;
+      // light_state = false;
     }
+    smart_home_event_send(&event);
   }
 }
 
@@ -162,15 +170,21 @@ void set_motor_state(cJSON *root) {
   cJSON *status_obj = NULL;
   char *value = NULL;
 
+  event_info_t event={0};
+  event.event=event_iot_cmd;
+
   para_obj = cJSON_GetObjectItem(root, "paras");
   status_obj = cJSON_GetObjectItem(para_obj, "onoff");
   if (status_obj != NULL) {
     value = cJSON_GetStringValue(status_obj);
     if (!strcmp(value, "ON")) {
-      motor_state = true;
+      // motor_state = true;
+      event.data.iot_data = IOT_CMD_MOTOR_ON;
     } else if (!strcmp(value, "OFF")) {
-      motor_state = false;
+      // motor_state = false;
+      event.data.iot_data = IOT_CMD_MOTOR_OFF;
     }
+    smart_home_event_send(&event);
   }
 }
 
@@ -190,9 +204,9 @@ void set_auto_state(cJSON *root) {
   if (status_obj != NULL) {
     value = cJSON_GetStringValue(status_obj);
     if (!strcmp(value, "ON")) {
-      auto_state = true;
+      // auto_state = true;
     } else if (!strcmp(value, "OFF")) {
-      auto_state = false;
+      // auto_state = false;
     }
   }
 }

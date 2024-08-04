@@ -22,6 +22,7 @@
 #include "iot_uart.h"
 
 #include "smart_home.h"
+#include "smart_home_event.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -33,10 +34,10 @@
 #define MSG_QUEUE_LENGTH                                16
 #define BUFFER_LEN                                      50
 
-extern bool motor_state;
-extern bool light_state;
-extern bool auto_state;
-extern unsigned int m_su03_msg_queue;
+// extern bool motor_state;
+// extern bool light_state;
+// extern bool auto_state;
+// extern unsigned int m_su03_msg_queue;
 
 /***************************************************************
 * 函数名称: su_03t_thread
@@ -47,7 +48,7 @@ extern unsigned int m_su03_msg_queue;
 static void su_03t_thread(void *arg)
 {
     IotUartAttribute attr;
-    double *data_ptr = NULL;
+    // double *data_ptr = NULL;
     unsigned int ret = 0;
 
     IoTUartDeinit(UART2_HANDLE);
@@ -67,16 +68,21 @@ static void su_03t_thread(void *arg)
         return;
     }
 
+    event_info_t event = {0};
+    event.event = event_su03t;
+
     while(1)
     {
         uint8_t data[64] = {0};
         uint8_t rec_len = IoTUartRead(UART2_HANDLE, data, sizeof(data));
 
-        LOS_QueueRead(m_su03_msg_queue, (void *)&data_ptr, BUFFER_LEN, LOS_WAIT_FOREVER);
-
+      
         if (rec_len != 0)
         {
             uint16_t command = data[0] << 8 | data[1];
+            event.data.su03t_data = command;
+            smart_home_event_send(&event);
+            #if 0
             if (command == auto_state_on)
             {
                 auto_state = true;
@@ -113,6 +119,7 @@ static void su_03t_thread(void *arg)
             {
                 su03t_send_double_msg(3, data_ptr[0]);
             }
+            #endif
         }
 
         LOS_Msleep(500);
