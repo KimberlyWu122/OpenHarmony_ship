@@ -49,7 +49,7 @@ lcd_menu_t fan_menu={
         .fc=LCD_MAGENTA,
         .bc=LCD_WHITE,
         .font_size=24,
-        .name="灯光关",
+        .name="风扇关",
     },
     .enterFunc=fan_menu_entry,
     .exitFunc=NULL,
@@ -130,7 +130,7 @@ lcd_display_board_t lum_db={
 };
 /* 所有的面板集合数组,方便遍历查询*/
 lcd_display_board_t *lcd_dbs[] ={&temp_db,&humi_db,&lum_db};
-/* 所有的菜单集合数组,方便遍历查询*/*/
+/* 所有的菜单集合数组,方便遍历查询*/
 lcd_menu_t *lcd_menus[] = {&light_menu,&fan_menu};
 /* 菜单的个数*/
 static int lcd_menu_number =  sizeof(lcd_menus)/sizeof(lcd_menu_t *);
