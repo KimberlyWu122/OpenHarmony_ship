@@ -219,7 +219,7 @@ void iot_smart_home_example()
     task_3.uwStackSize = 20480*5;
     task_3.pcName = "iot thread";
     task_3.usTaskPrio = 24;
-    ret = LOS_TaskCreate(&thread_id_3, &task_3);
+    // ret = LOS_TaskCreate(&thread_id_3, &task_3);
     if (ret != LOS_OK)
     {
         printf("Falied to create task ret:0x%x\n", ret);

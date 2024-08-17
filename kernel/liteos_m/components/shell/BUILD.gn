@@ -40,7 +40,7 @@ static_library("shell") {
     "src/cmds/mempt_shellcmd.c",
     "src/cmds/shell_shellcmd.c",
     "src/cmds/task_shellcmd.c",
-    "src/cmds/vfs_shellcmd.c",
+    # "src/cmds/vfs_shellcmd.c",
   ]
 
   include_dirs = [

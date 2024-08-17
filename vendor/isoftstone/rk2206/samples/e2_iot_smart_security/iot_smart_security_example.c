@@ -36,7 +36,7 @@ unsigned int m_su03_msg_queue;
 
 bool alarm_light_state = false;
 bool beep_state = false;
-bool auto_state = true;
+bool auto_state = false;
 
 /***************************************************************
  * 函数名称: iot_thread

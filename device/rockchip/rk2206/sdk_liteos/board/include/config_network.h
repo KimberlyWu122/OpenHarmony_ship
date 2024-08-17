@@ -78,6 +78,37 @@ typedef struct
 }wifi_config_t;
 typedef int (*printf_fn)(const char *fmt, ...);
 
+#define WIFI_MAX_SN_LEN             (VENDOR_ID_SIZE)
+#define WIFI_MAX_LEN_SN             (VENDOR_ID_SIZE)
+#define WIFI_MAX_LEN_PRODUCT        (VENDOR_ID_SIZE)
+#define WIFI_MAX_LEN_FACTORY        (VENDOR_ID_SIZE)
+#define WIFI_MAX_LEN_MODE           4
+#define WIFI_MAX_LEN_MAC            6
+#define WIFI_MAX_LEN_IP             4
+#define WIFI_MAX_LEN_GATEWAY        4
+#define WIFI_MAX_LEN_MASK           4
+#define WIFI_MAX_LEN_AP_SSID        (WIFI_MAX_SSID_LEN)
+#define WIFI_MAX_LEN_AP_PASSWD      (WIFI_MAX_KEY_LEN)
+#define WIFI_MAX_LEN_ROUTE_SSID     (WIFI_MAX_SSID_LEN)
+#define WIFI_MAX_LEN_ROUTE_PASSWD   (WIFI_MAX_KEY_LEN)
+
+#define WIFI_CONFIG_KEY_SN              "sn"
+#define WIFI_CONFIG_KEY_PRODUCT         "product"
+#define WIFI_CONFIG_KEY_FACTORY         "factory"
+#define WIFI_CONFIG_KEY_MODE            "mode"
+#define WIFI_CONFIG_KEY_MAC             "mac"
+#define WIFI_CONFIG_KEY_IP              "ip"
+#define WIFI_CONFIG_KEY_GATEWAY         "gateway"
+#define WIFI_CONFIG_KEY_MASK            "mask"
+#define WIFI_CONFIG_KEY_AP_SSID         "ap_ssid"
+#define WIFI_CONFIG_KEY_AP_PASSWD       "ap_passwd"
+#define WIFI_CONFIG_KEY_ROUTE_SSID      "route_ssid"
+#define WIFI_CONFIG_KEY_ROUTE_PASSWD    "route_passwd"
+
+
+#define WIFI_CONFIG_KEY_MODE_AP         "AP"
+#define WIFI_CONFIG_KEY_MODE_STA        "STA"
+
 void set_default_wifi_config(void);
 void set_wifi_config(wifi_config_t wifi_config);
 void get_wifi_config(printf_fn pfn, wifi_config_t *wifi_config);

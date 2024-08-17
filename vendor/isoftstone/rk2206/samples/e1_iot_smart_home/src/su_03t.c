@@ -57,9 +57,9 @@ static void su_03t_thread(void *arg)
     attr.dataBits = IOT_UART_DATA_BIT_8;
     attr.pad = IOT_FLOW_CTRL_NONE;
     attr.parity = IOT_UART_PARITY_NONE;
-    attr.rxBlock = IOT_UART_BLOCK_STATE_NONE_BLOCK;
+    attr.rxBlock = IOT_UART_BLOCK_STATE_BLOCK;
     attr.stopBits = IOT_UART_STOP_BIT_1;
-    attr.txBlock = IOT_UART_BLOCK_STATE_NONE_BLOCK;
+    attr.txBlock = IOT_UART_BLOCK_STATE_BLOCK;
     
     ret = IoTUartInit(UART2_HANDLE, &attr);
     if (ret != IOT_SUCCESS)

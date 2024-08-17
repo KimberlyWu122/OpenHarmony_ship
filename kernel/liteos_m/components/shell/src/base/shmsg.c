@@ -55,6 +55,7 @@ UINT32 ShellMsgTypeGet(CmdParsed *cmdParsed, const CHAR *cmdType)
 
     len = strlen(cmdType);
     LOS_DL_LIST_FOR_EACH_ENTRY(curCmdItem, &(cmdInfo->cmdList.list), CmdItemNode, list) {
+        PRINTK(">>%s %s\n", (CHAR *)(curCmdItem->cmd->cmdKey),cmdType);
         if ((len == strlen(curCmdItem->cmd->cmdKey)) &&
             (strncmp((CHAR *)(curCmdItem->cmd->cmdKey), cmdType, len) == 0)) {
             minLen = (len < CMD_KEY_LEN) ? len : CMD_KEY_LEN;
@@ -119,7 +120,7 @@ INT32 ShellCmdExec(const CHAR *msgName, const CHAR *cmdString)
     if (err != EOK) {
         return -EFAULT;
     }
-
+       PRINTK("msgName:%s %s\n", msgName,cmdString);
     uintRet = ShellMsgTypeGet(&cmdParsed, msgName);
     if (uintRet != LOS_OK) {
         PRINTK("%s:command not found\n", msgName);
@@ -239,6 +240,11 @@ VOID ShellTaskEntry(VOID)
             if ((ptr - buf) == (sizeof(buf) - 1)) {
                 break;
             }
+            // if (*ptr == '\b' && ptr != buf) { /* support backspace */
+            //     PRINTK("\b");
+            //     ptr--;
+            //     continue;
+            // }
             ptr++;
         }
         if (ptr != buf) {
@@ -246,12 +252,12 @@ VOID ShellTaskEntry(VOID)
                 PRINTK("%c", *ptr);
                 *ptr = '\0';
                 ptr = buf;
-                PRINTK("\n\r", buf);
+                PRINTK("\r\n");
                 ExecCmdline(buf);
                 PRINTK("OHOS # ");
             }
         } else {
-            PRINTK("\n\rOHOS # ");
+            PRINTK("\r\nOHOS # ");
         }
     }
 }

@@ -26,8 +26,16 @@ int printf(char const  *fmt, ...)
 
     va_start(ap, fmt);
     vsnprintf(buffer, 256, fmt, ap);
-    DebugWrite(DEBUG_PORT, (const unsigned char *)buffer, strlen(buffer));
-    DebugPutc(DEBUG_PORT, '\r');
+    // DebugWrite(DEBUG_PORT, (const unsigned char *)buffer, strlen(buffer));
+    // DebugPutc(DEBUG_PORT, '\n');
+    for(int i=0;i<strlen(buffer);i++){
+        //当发现换行符，则自动添加回车,注意当下标为0直接添加回车
+        if(buffer[i]=='\n' && (( i>0 && buffer[i-1]!='\r') ||(i==0 ))){
+            DebugPutc(DEBUG_PORT, '\r');
+        }
+        
+        DebugPutc(DEBUG_PORT, buffer[i]);
+    }
     va_end(ap);
     return 0;
 }

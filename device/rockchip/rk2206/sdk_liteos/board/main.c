@@ -22,6 +22,9 @@
 #include "lz_hardware.h"
 #include "config_network.h"
 
+#include "uart.h"
+#include "shell_cmd.h"
+
 #define  MAIN_TAG              "MAIN"
 int DeviceManagerStart();
 void IotInit(void);
@@ -43,6 +46,9 @@ LITE_OS_SEC_TEXT_INIT int Main(void)
     ret = LOS_KernelInit();
     if (ret == LOS_OK) {
         OHOS_SystemInit();
+        UartDebugInit();
+        LosShellInit();
+        shell_cmd_init();
         // IotInit();
         /* 开启驱动管理服务 */
         //DeviceManagerStart();

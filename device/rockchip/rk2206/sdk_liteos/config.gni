@@ -51,6 +51,7 @@ board_cflags = [
   "-D__LITEOS_M__",
   "-D_BSD_SOURCE",
   "-D_GNU_SOURCE",
+  "-DLOGCFG_SHELL",
   # "-DCONFIG_PWM_SUPPORT",
   # "-DCONFIG_I2C_SUPPORT",
 ]
@@ -64,6 +65,7 @@ board_include_dirs = [
     "//device/rockchip/rk2206/sdk_liteos/include",
     "//device/rockchip/rk2206/adapter/include",
     "//device/rockchip/rk2206/sdk_liteos/board/fs",
+    "//device/rockchip/rk2206/sdk_liteos/board/include",
     "//device/rockchip/hardware/lib/CMSIS/Device/RK2206/Include",
     "//third_party/cmsis/CMSIS/Core/Include",
     "//kernel/liteos_m/kal/posix/include",

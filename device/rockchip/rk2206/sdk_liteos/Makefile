@@ -45,7 +45,7 @@ MCU = $(CPU) -mthumb #$(FPU) $(FLOAT-ABI)
 LDSCRIPT = board.ld
 
 boot_LIBS = -lbootstrap -lbroadcast
-hardware_LIBS = -lhal_iothardware -lhardware -liot_smart_home_example
+hardware_LIBS = -lhal_iothardware -lhardware -lshellcmd -liot_smart_home_example
 hdf_LIBS = -lhdf_config -lhdf_core -lhdf_osal_lite -lhdf_platform_lite \
 #-lsample_driver -lgpio_driver -lpwm_driver -li2c_driver -ladc_driver -lspi_driver
 app_LIBS = 
@@ -60,7 +60,7 @@ common_LIBS = \
 -lboard        -lcpup          -lhievent_lite   -lmbedtls          -lsamgr          -ltrans_service \
 -ldiscovery     -lhal_sysparam      -lhilog_lite     -lmusl-c           -lsamgr_adapter  -lutils \
 -llwip          -lhal_token_static  -lhiview_lite    -lmusl-m           -lsamgr_source   -lutils_kv_store \
--lpahomqtt_static -llzlittlefs
+-lpahomqtt_static -llzlittlefs -lshell
 LIBS= -Wl,--start-group \
       -Wl,--whole-archive $(boot_LIBS) $(hardware_LIBS) $(hdf_LIBS) $(app_LIBS) -Wl,--no-whole-archive \
       $(common_LIBS) \

@@ -41,6 +41,7 @@ lite_component("sdk") {
   deps = [
     "//device/rockchip/rk2206/sdk_liteos/board:board",
     "//device/rockchip/hardware:hardware",
+    "shell:shellcmd",
     # xts
     "//device/rockchip/rk2206/adapter/hals/update:hal_update_static",
     # xts
