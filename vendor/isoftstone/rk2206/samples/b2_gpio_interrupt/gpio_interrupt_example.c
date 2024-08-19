@@ -70,81 +70,33 @@ void gpio_process()
         return;
     }
 
-    // /* 初始化中断触发次数 */
-    // m_gpio_interrupt_count = 0;
-    // /* 关闭中断屏蔽 */
-    // IoTGpioSetIsrMask(GPIO_BODY_INDUCTION, FALSE);
-    
-    int count= 0;
-    //   int size = 100;
-    uint32_t nbuffer[400]={0};
-    FlashInit();
-    // int n=FlashRead(0x879d00, 400, buffer);
-    // for(int i=0;i<size;i+=4)
-    // {
-        
-    //     if(buffer[i]!=0){
-    //             printf(">>addr%x %08x \r\n",0x879d00+i,buffer[i]);
-                
-    //     }
-    // }
-    //按照地址随机找
-     for (int addr=0x800000;addr<0x8000000;addr+=4)
+    /* 初始化中断触发次数 */
+    m_gpio_interrupt_count = 0;
+    /* 关闭中断屏蔽 */
+    IoTGpioSetIsrMask(GPIO_BODY_INDUCTION, FALSE);
+   
+    printf("over n=%d\n",n);
+    while (1)
     {
-        
-        int n=FlashRead(addr, 40, nbuffer);
-        if(memcmp(nbuffer,"3861 test",8)==0){
-            printf(">>addr%x %08x \r\n",addr,nbuffer[0]);
-        }
-        if(memcmp(nbuffer,"tset 1683",8)==0){
-            //用3861倒序找
-            printf(">>>addr%x %08x \r\n",addr,nbuffer[0]);
-            printf("buffer:%s\n",(char *)nbuffer);
-            int size = 100;
-            uint32_t buffer[400]={0};
-            FlashRead(addr-40, 400, buffer); //找到后读取前后的区块
-            for(int i=0;i<size;i+=4)
-            {
-                
-                if(buffer[i]!=0){
-                        printf(">>addr%x %08x \r\n",addr-40+i,buffer[i]);
-                        
-                }
-            }
-        }
-        
-        // for(int i=0;i<size;i++)
-        // {
-           
-        //     if(buffer[i]!=0){
-        //          printf(">>addr%d %02x \r\n",i,buffer[i]);
-                 
-        //     }
-        // }
-        // printf("\n");
-    }
-    // printf("over n=%d\n",n);
-    // while (1)
-    // {
-    //     printf("***************GPIO Interrupt Example*************\n");
-    //     printf("gpio interrupt count = %d\n", m_gpio_interrupt_count);
-    //     printf("\n");
-    //     if(light_flag==1)
-    //     {
+        printf("***************GPIO Interrupt Example*************\n");
+        printf("gpio interrupt count = %d\n", m_gpio_interrupt_count);
+        printf("\n");
+        if(light_flag==1)
+        {
 
-    //         count++;
-    //         if(count >=30)
-    //         {
-    //             IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE0);
-    //             count= 0;
-    //             light_flag= 0;
-    //         }
+            count++;
+            if(count >=30)
+            {
+                IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE0);
+                count= 0;
+                light_flag= 0;
+            }
             
-    //     }
+        }
         
-    //     /* 睡眠1秒 */
-    //     LOS_Msleep(1000);
-    // }
+        /* 睡眠1秒 */
+        LOS_Msleep(1000);
+    }
 }
 
 

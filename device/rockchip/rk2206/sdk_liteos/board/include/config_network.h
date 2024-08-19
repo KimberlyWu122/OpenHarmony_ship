@@ -78,7 +78,6 @@ typedef struct
 }wifi_config_t;
 typedef int (*printf_fn)(const char *fmt, ...);
 
-#define WIFI_MAX_SN_LEN             (VENDOR_ID_SIZE)
 #define WIFI_MAX_LEN_SN             (VENDOR_ID_SIZE)
 #define WIFI_MAX_LEN_PRODUCT        (VENDOR_ID_SIZE)
 #define WIFI_MAX_LEN_FACTORY        (VENDOR_ID_SIZE)

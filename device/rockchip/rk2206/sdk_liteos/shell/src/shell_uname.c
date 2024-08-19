@@ -8,7 +8,7 @@
 // 打印软件系统版本号
 int shell_uname(int argc, const char *argv[])
 {
-    printf("OpenHarmony-v3.0LTS, Lockzhiner rk2206 v1.3\n");
+    printf("OpenHarmony-v3.0LTS, Isoftstone TX-SMART-R v1.3\n");
     return 0;
 }
 

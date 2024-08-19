@@ -25,12 +25,14 @@ static_library("iot_smart_home_example") {
     "src/drv_light.c",
     "src/drv_motor.c",
     "src/drv_sensors.c",
+    "src/environment.c",
   ]
 
   include_dirs = [
     "//utils/native/lite/include",
     "include",
     "src/include" ,
+    "//kernel/liteos_m/components/shell/include",
     "//base/iot_hardware/peripheral/interfaces/kits",
     "//device/rockchip/rk2206/adapter/include",
     "//device/rockchip/rk2206/sdk_liteos/board/include",

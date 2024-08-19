@@ -24,6 +24,7 @@
 #include "los_task.h"
 #include "ohos_init.h"
 #include "smart_home_event.h"
+#include "environment.h"
 
 #define MQTT_DEVICES_PWD "12345678"
 
@@ -46,6 +47,15 @@ static unsigned char readBuf[MAX_BUFFER_LENGTH];
 Network network;
 MQTTClient client;
 
+static char mqtt_devid[64]=DEVICE_ID;
+static char mqtt_pwd[64]=MQTT_DEVICES_PWD;
+static char mqtt_username[64]=DEVICE_ID;
+static char mqtt_hostaddr[64]=HOST_ADDR;
+
+static char publish_topic[128] = PUBLISH_TOPIC;
+static char subcribe_topic[128] = SUBCRIB_TOPIC;
+static char response_topic[128] = RESPONSE_TOPIC;
+
 static unsigned int mqttConnectFlag = 0;
 
 extern bool motor_state;
@@ -61,7 +71,6 @@ extern bool auto_state;
 void send_msg_to_mqtt(e_iot_data *iot_data) {
   int rc;
   MQTTMessage message;
-  char *publishtopic = PUBLISH_TOPIC;
   char payload[MAX_BUFFER_LENGTH] = {0};
   char str[MAX_STRING_LENGTH] = {0};
 
@@ -69,7 +78,7 @@ void send_msg_to_mqtt(e_iot_data *iot_data) {
     printf("mqtt not connect\n");
     return;
   }
-
+  
   cJSON *root = cJSON_CreateObject();
   if (root != NULL) {
     cJSON *serv_arr = cJSON_AddArrayToObject(root, "services");
@@ -122,7 +131,8 @@ void send_msg_to_mqtt(e_iot_data *iot_data) {
   message.payload = payload;
   message.payloadlen = strlen(payload);
 
-  if ((rc = MQTTPublish(&client, publishtopic, &message)) != 0) {
+  sprintf(publish_topic,"$oc/devices/%s/sys/properties/report",mqtt_devid);
+  if ((rc = MQTTPublish(&client, publish_topic, &message)) != 0) {
     printf("Return code from MQTT publish is %d\n", rc);
     mqttConnectFlag = 0;
   } else {
@@ -226,6 +236,7 @@ void mqtt_message_arrived(MessageData *data) {
   char request_id[20] = {0};
   MQTTMessage message;
   char payload[MAX_BUFFER_LENGTH];
+  
   char rsptopic[128] = {0};
 
   printf("Message arrived on topic %.*s: %.*s\n",
@@ -238,7 +249,8 @@ void mqtt_message_arrived(MessageData *data) {
   // printf("request_id = %s\n", request_id);
 
   // create response topic
-  sprintf(rsptopic, "%s/request_id=%s", RESPONSE_TOPIC, request_id);
+  sprintf(response_topic,"$oc/devices/%s/sys/commands/response",mqtt_devid);
+  sprintf(rsptopic, "%s/request_id=%s", response_topic, request_id);
   // printf("rsptopic = %s\n", rsptopic);
 
   // response message
@@ -307,6 +319,24 @@ void mqtt_init() {
   int rc;
 
   printf("Starting MQTT...\n");
+
+  
+  if (env_get(env_iot_deviceid, mqtt_devid, sizeof(mqtt_devid)) < 0) {
+    printf("get deviceid failed\n");
+    
+  }
+  if (env_get(env_iot_password, mqtt_pwd, sizeof(mqtt_pwd)) < 0) {
+    printf("get password failed\n");
+    
+  }
+  if (env_get(env_iot_username, mqtt_username, sizeof(mqtt_username)) < 0) {
+    printf("get username failed\n");
+    
+  }
+  if (env_get(env_iot_hostaddr, mqtt_hostaddr, sizeof(mqtt_hostaddr)) < 0) {
+    printf("get hostaddr failed\n");
+    
+  }
   /*网络初始化*/
   NetworkInit(&network);
 
@@ -320,13 +350,13 @@ begin:
                  sizeof(readBuf));
 
   MQTTString clientId = MQTTString_initializer;
-  clientId.cstring = DEVICE_ID;
+  clientId.cstring = mqtt_devid;
 
   MQTTString userName = MQTTString_initializer;
-  userName.cstring = DEVICE_ID;
+  userName.cstring = mqtt_username;
 
   MQTTString password = MQTTString_initializer;
-  password.cstring = MQTT_DEVICES_PWD;
+  password.cstring = mqtt_pwd;
 
   MQTTPacket_connectData data = MQTTPacket_connectData_initializer;
   data.clientID = clientId;
@@ -348,7 +378,8 @@ begin:
   }
 
   printf("MQTTSubscribe  ...\n");
-  rc = MQTTSubscribe(&client, SUBCRIB_TOPIC, 0, mqtt_message_arrived);
+  sprintf(subcribe_topic,"$oc/devices/%s/sys/commands/+",mqtt_devid);
+  rc = MQTTSubscribe(&client, subcribe_topic, 0, mqtt_message_arrived);
   if (rc != 0) {
     printf("MQTTSubscribe: %d\n", rc);
     osDelay(200);

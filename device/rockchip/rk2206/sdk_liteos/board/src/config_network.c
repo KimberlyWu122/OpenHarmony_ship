@@ -623,6 +623,7 @@ WifiErrorCode SetWifiModeOn()
     int gw, netmask;
     memset(&info, 0, sizeof(WifiLinkedInfo));
     unsigned int retry = 15;
+    error = ERROR_WIFI_INVALID_ARGS;
     while (retry) {
         if (GetLinkedInfo(&info) == WIFI_SUCCESS) {
             if (info.connState == WIFI_CONNECTED) {
@@ -643,6 +644,7 @@ WifiErrorCode SetWifiModeOn()
                     if (WIFI_SUCCESS == GetLocalWifiNetmask(&netmask)) {
                         LZ_HARDWARE_LOGD(LOG_TAG, "network NETMASK (%s)", inet_ntoa(netmask));
                     }
+                    error = WIFI_SUCCESS;
                     goto connect_done;
                 }
             }

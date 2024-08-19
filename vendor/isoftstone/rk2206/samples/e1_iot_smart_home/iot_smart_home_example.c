@@ -27,9 +27,10 @@
 #include "lcd.h"
 #include "picture.h"
 #include "adc_key.h"
+#include "environment.h"
 
 #define ROUTE_SSID      "MY_SW"          // WiFi账号
-#define ROUTE_PASSWORD "12345678"   // WiFi密码
+#define ROUTE_PASSWORD "12345678"       // WiFi密码
 
 #define MSG_QUEUE_LENGTH                                16
 #define BUFFER_LEN                                      50
@@ -44,18 +45,47 @@
 void iot_thread(void *args) {
   uint8_t mac_address[6] = {0x00, 0xdc, 0xb6, 0x90, 0x01, 0x00};
 
-  FlashInit();
+  char ssid[32]=ROUTE_SSID;
+  char password[32]=ROUTE_PASSWORD;
+  char mac_addr[32]={0};
+
+
+  if (env_get(env_wifi_ssid, ssid,sizeof(ssid)) >= 0) {
+    printf("get wifi ssid:%s\n",ssid);
+    
+  }else{
+    printf("get wifi ssid fail %s\n",ssid);
+  }
+  if (env_get(env_wifi_pwd, password,sizeof(password))>= 0) {
+    printf("get wifi password:%s\n",password);
+    
+  }else{
+    printf("get wifi password fail\n");
+  }
+  if (env_get(env_wifi_mac, mac_addr,sizeof(mac_addr)) >= 0) {
+    printf("get wifi mac addr:%s\n",mac_addr);
+    sscanf(mac_addr,"%02x:%02x:%02x:%02x:%02x:%02x",
+        &mac_address[0],&mac_address[1],&mac_address[2],
+        &mac_address[3],&mac_address[4],&mac_address[5] );
+    printf("mac addr: %02x:%02x:%02x:%02x:%02x:%02x\n",
+        mac_address[0],mac_address[1],mac_address[2],
+        mac_address[3],mac_address[4],mac_address[5] );
+  }else{
+    printf("get wifi mac addr fail\n");
+  }
+
   VendorSet(VENDOR_ID_WIFI_MODE, "STA", 3); // 配置为Wifi STA模式
-  VendorSet(VENDOR_ID_MAC, mac_address,
-            6); // 多人同时做该实验，请修改各自不同的WiFi MAC地址
-  VendorSet(VENDOR_ID_WIFI_ROUTE_SSID, ROUTE_SSID, sizeof(ROUTE_SSID));
-  VendorSet(VENDOR_ID_WIFI_ROUTE_PASSWD, ROUTE_PASSWORD,
-            sizeof(ROUTE_PASSWORD));
+  VendorSet(VENDOR_ID_MAC, mac_address, 6); // 多人同时做该实验，请修改各自不同的WiFi MAC地址
+  VendorSet(VENDOR_ID_WIFI_ROUTE_SSID, ssid, sizeof(ssid));
+  VendorSet(VENDOR_ID_WIFI_ROUTE_PASSWD, password,sizeof(password));
 
 reconnect:
   SetWifiModeOff();
-  SetWifiModeOn();
-
+  int ret = SetWifiModeOn();
+  if(ret != 0){
+    printf("wifi connect failed,please check wifi config and the AP!\n");
+    return;
+  }
   mqtt_init();
 
   while (1) {
@@ -182,8 +212,9 @@ void iot_smart_home_example()
     TSK_INIT_PARAM_S task_2 = {0};
     TSK_INIT_PARAM_S task_3 = {0};
     unsigned int ret = LOS_OK;
-
+    
     smart_home_event_init();
+    env_shell_init();
 
     // ret = LOS_QueueCreate("su03_queue", MSG_QUEUE_LENGTH, &m_su03_msg_queue, 0, BUFFER_LEN);
     // if (ret != LOS_OK)
@@ -219,7 +250,7 @@ void iot_smart_home_example()
     task_3.uwStackSize = 20480*5;
     task_3.pcName = "iot thread";
     task_3.usTaskPrio = 24;
-    // ret = LOS_TaskCreate(&thread_id_3, &task_3);
+    ret = LOS_TaskCreate(&thread_id_3, &task_3);
     if (ret != LOS_OK)
     {
         printf("Falied to create task ret:0x%x\n", ret);
