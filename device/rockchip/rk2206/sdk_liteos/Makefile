@@ -45,10 +45,10 @@ MCU = $(CPU) -mthumb #$(FPU) $(FLOAT-ABI)
 LDSCRIPT = board.ld
 
 boot_LIBS = -lbootstrap -lbroadcast
-hardware_LIBS = -lhal_iothardware -lhardware -lshellcmd -liot_smart_home_example
+hardware_LIBS = -lhal_iothardware -lhardware  -liot_smart_home_example 
 hdf_LIBS = -lhdf_config -lhdf_core -lhdf_osal_lite -lhdf_platform_lite \
 #-lsample_driver -lgpio_driver -lpwm_driver -li2c_driver -ladc_driver -lspi_driver
-app_LIBS = 
+app_LIBS = -lshellcmd 
 xts_LIBS = -lmodule_ActsBootstrapTest -lmodule_ActsDfxFuncTest -lmodule_ActsHieventLiteTest -lhuks_test_common -lmodule_ActsHuksHalFunctionTest -lmodule_ActsKvStoreTest \
 -lmodule_ActsLwipTest -lmodule_ActsParameterTest -lmodule_ActsSamgrTest -lmodule_ActsUpdaterFuncTest -lmodule_ActsUtilsFileTest \
 -lmodule_ActsWifiIotTest -lmodule_ActsWifiServiceTest -lhctest -lmbedtls -lhal_update_static -lhota
@@ -59,7 +59,7 @@ common_LIBS = \
 -lbacktrace    -lcppsupport    -lhal_file_static   -lhichainsdk     -lposix          -ltoken_static \
 -lboard        -lcpup          -lhievent_lite   -lmbedtls          -lsamgr          -ltrans_service \
 -ldiscovery     -lhal_sysparam      -lhilog_lite     -lmusl-c           -lsamgr_adapter  -lutils \
--llwip          -lhal_token_static  -lhiview_lite    -lmusl-m           -lsamgr_source   -lutils_kv_store  -lfs_operations -lfatfs \
+-llwip          -lhal_token_static  -lhiview_lite    -lmusl-m           -lsamgr_source   -lutils_kv_store -lfs_operations -lfatfs\
 -lpahomqtt_static -llzlittlefs -lshell
 LIBS= -Wl,--start-group \
       -Wl,--whole-archive $(boot_LIBS) $(hardware_LIBS) $(hdf_LIBS) $(app_LIBS) -Wl,--no-whole-archive \

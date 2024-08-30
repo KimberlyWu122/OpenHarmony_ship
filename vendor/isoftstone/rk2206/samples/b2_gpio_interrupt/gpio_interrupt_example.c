@@ -20,7 +20,7 @@
 
 /* 人体感应传感器GPIO */
 #define GPIO_BODY_INDUCTION      GPIO0_PA3
-#define GPIO_TEST               GPIO0_PA5
+#define GPIO_LED               GPIO0_PA5
 
 /* 记录中断触发次数 */
 static unsigned int m_gpio_interrupt_count = 0;
@@ -35,8 +35,8 @@ uint8_t light_flag= 0;
 void gpio_isr_func(void *args)
 {
     printf("check Body!\n");
-    // m_gpio_interrupt_count++;
-    IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE1);
+    // 发生人体感应,点亮LED
+    IoTGpioSetOutputVal(GPIO_LED, IOT_GPIO_VALUE1);
     light_flag= 1;
 }
 
@@ -51,11 +51,9 @@ void gpio_process()
     unsigned int ret;
    
     //初始化IO口
-    IoTGpioInit(GPIO_TEST);
+    IoTGpioInit(GPIO_LED);
     //设置GPIO为输出方向
-    IoTGpioSetDir(GPIO_TEST, IOT_GPIO_DIR_OUT);
-    // //设置GPIO输出电平
-    // IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE1);
+    IoTGpioSetDir(GPIO_LED, IOT_GPIO_DIR_OUT);
 
     /* 初始化引脚为GPIO */
     IoTGpioInit(GPIO_BODY_INDUCTION);
@@ -75,7 +73,6 @@ void gpio_process()
     /* 关闭中断屏蔽 */
     IoTGpioSetIsrMask(GPIO_BODY_INDUCTION, FALSE);
    
-    printf("over n=%d\n",n);
     while (1)
     {
         printf("***************GPIO Interrupt Example*************\n");
@@ -84,11 +81,13 @@ void gpio_process()
         if(light_flag==1)
         {
 
-            count++;
-            if(count >=30)
+            m_gpio_interrupt_count++;
+
+            if(m_gpio_interrupt_count >=10)
             {
-                IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE0);
-                count= 0;
+                //10s后关闭起夜灯,所有标志回复初始状态
+                IoTGpioSetOutputVal(GPIO_LED, IOT_GPIO_VALUE0);
+                m_gpio_interrupt_count= 0;
                 light_flag= 0;
             }
             

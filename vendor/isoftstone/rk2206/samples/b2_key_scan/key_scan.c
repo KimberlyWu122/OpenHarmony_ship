@@ -20,6 +20,7 @@
 
 /* GPIO按键IO口 */
 #define GPIO_KEY_UP         GPIO0_PC7
+
 // #define GPIO_KEY_DOWN       GPIO0_PA3
 // #define GPIO_KEY_LEFT       GPIO0_PA3
 // #define GPIO_KEY_RIIGHT     GPIO0_PA3
@@ -41,7 +42,7 @@ void gpio_isr_func(void *args)
 /* 定义按键按下和未按下变量*/
 #define PRESSED     1
 #define NO_PRESSED  0
-
+#define GPIO_TEST     GPIO0_PA5
 /***************************************************************
 * 函数名称: gpio_process
 * 说    明: gpio任务
@@ -56,14 +57,21 @@ void gpio_process()
     IoTGpioInit(GPIO_KEY_UP);
     /* 引脚配置为输入 */
     IoTGpioSetDir(GPIO_KEY_UP, IOT_GPIO_DIR_IN);
+
+      //初始化IO口
+    IoTGpioInit(GPIO_TEST);
+    //设置GPIO为输出方向
+    IoTGpioSetDir(GPIO_TEST, IOT_GPIO_DIR_OUT);
+
     /* is_pressed 0:未按下 1:按下 */
     int is_pressed = NO_PRESSED;
     int count =0;
+    int cur = 0;
     while (1)
     {
         IotGpioValue val;
         IoTGpioGetInputVal(GPIO_KEY_UP, &val);
-        
+
         if((val == 0) &&(is_pressed == NO_PRESSED)) {
             /* 判断当按键按下时是否已经处理过按下 */
             //消除抖动
@@ -72,6 +80,19 @@ void gpio_process()
             if(val == 0){
                 is_pressed = PRESSED;
                 printf("pressed\n");
+
+                if (cur == 0)
+                {
+                    /* 输出低电平 */
+                    IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE0);
+                    cur = 1;
+                }
+                else
+                {
+                    /* 输出高电平 */
+                    IoTGpioSetOutputVal(GPIO_TEST, IOT_GPIO_VALUE1);
+                    cur = 0;
+                }
             }
         }else if((val == 1) &&(is_pressed == PRESSED)){
             /* 判断当按键松开时是否已经处理过 */

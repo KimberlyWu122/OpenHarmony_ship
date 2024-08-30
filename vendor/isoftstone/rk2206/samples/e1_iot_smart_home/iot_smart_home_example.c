@@ -43,7 +43,7 @@
  * 返 回 值: 无
  ***************************************************************/
 void iot_thread(void *args) {
-  uint8_t mac_address[6] = {0x00, 0xdc, 0xb6, 0x90, 0x01, 0x00};
+  uint8_t mac_address[12] = {0x00, 0xdc, 0xb6, 0x90, 0x01, 0x00,0};
 
   char ssid[32]=ROUTE_SSID;
   char password[32]=ROUTE_PASSWORD;

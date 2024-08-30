@@ -57,6 +57,7 @@
 uint32_t color_list[]={BLACK,WHITE,RED,GREEN,BLUE,YELLOW,CYAN,MAGENTA,
     ORANGE,PURPLE,GRAY,LIGHT_GRAY,DARK_GRAY,BROWN,PINK,TURQUOISE};
 
+//占空比整形,让占空比处于1~99之间
 int duty_fix(int duty){
 
     if(duty> 99){
@@ -69,7 +70,8 @@ int duty_fix(int duty){
 
     return duty;
 }
-#define USE_SMOOTH 0
+//定义是否有渐变效果,1:设置渐变,0:取消渐变
+#define USE_SMOOTH 1
 void rgb_led_process()
 {
     unsigned int ret;
@@ -140,7 +142,7 @@ void rgb_led_process()
                 continue;
             }
         
-            ret = IoTPwmStart(LED_G_PORT, last_r_duty, 1000);
+            ret = IoTPwmStart(LED_G_PORT, last_g_duty, 1000);
             if (ret != 0) {
                 printf("IoTPwmStart failed(%d)\n", LED_G_PORT);
                 continue;
@@ -192,24 +194,7 @@ void rgb_led_process()
         
     }
 }
-   // /* 占空比由1~99 当到99时翻转 由99~1*/
-        // if (toggle)
-        // {
-        //     duty--;
-        // }
-        // else
-        // {
-        //     duty++;
-        // }
-        
-        // if (duty == 99)
-        // {
-        //     toggle = 1;
-        // }
-        // else if (duty == 1)
-        // {
-        //     toggle = 0;
-        // }
+
 /***************************************************************
 * 函数名称: rgb_led_example
 * 说    明: rgb控制入口函数
