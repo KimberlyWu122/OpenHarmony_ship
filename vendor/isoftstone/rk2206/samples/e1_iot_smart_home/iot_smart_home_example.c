@@ -27,7 +27,6 @@
 #include "lcd.h"
 #include "picture.h"
 #include "adc_key.h"
-#include "environment.h"
 
 #define ROUTE_SSID      "MY_SW"          // WiFi账号
 #define ROUTE_PASSWORD "12345678"       // WiFi密码
@@ -49,30 +48,6 @@ void iot_thread(void *args) {
   char password[32]=ROUTE_PASSWORD;
   char mac_addr[32]={0};
 
-
-  if (env_get(env_wifi_ssid, ssid,sizeof(ssid)) >= 0) {
-    printf("get wifi ssid:%s\n",ssid);
-    
-  }else{
-    printf("get wifi ssid fail %s\n",ssid);
-  }
-  if (env_get(env_wifi_pwd, password,sizeof(password))>= 0) {
-    printf("get wifi password:%s\n",password);
-    
-  }else{
-    printf("get wifi password fail\n");
-  }
-  if (env_get(env_wifi_mac, mac_addr,sizeof(mac_addr)) >= 0) {
-    printf("get wifi mac addr:%s\n",mac_addr);
-    sscanf(mac_addr,"%02x:%02x:%02x:%02x:%02x:%02x",
-        &mac_address[0],&mac_address[1],&mac_address[2],
-        &mac_address[3],&mac_address[4],&mac_address[5] );
-    printf("mac addr: %02x:%02x:%02x:%02x:%02x:%02x\n",
-        mac_address[0],mac_address[1],mac_address[2],
-        mac_address[3],mac_address[4],mac_address[5] );
-  }else{
-    printf("get wifi mac addr fail\n");
-  }
 
   VendorSet(VENDOR_ID_WIFI_MODE, "STA", 3); // 配置为Wifi STA模式
   VendorSet(VENDOR_ID_MAC, mac_address, 6); // 多人同时做该实验，请修改各自不同的WiFi MAC地址
@@ -214,8 +189,7 @@ void iot_smart_home_example()
     unsigned int ret = LOS_OK;
     
     smart_home_event_init();
-    env_shell_init();
-
+    
     // ret = LOS_QueueCreate("su03_queue", MSG_QUEUE_LENGTH, &m_su03_msg_queue, 0, BUFFER_LEN);
     // if (ret != LOS_OK)
     // {

@@ -25,7 +25,6 @@ static_library("iot_smart_home_example") {
     "src/drv_light.c",
     "src/drv_motor.c",
     "src/drv_sensors.c",
-    "src/environment.c",
   ]
 
   include_dirs = [

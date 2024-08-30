@@ -1,5 +1,5 @@
-#ifndef __LCD_MENU__
-#define __LCD_MENU__
+#ifndef __COMPONENTS_H__
+#define __COMPONENTS_H__
 
 #include "stdio.h"
 #include "stdint.h"

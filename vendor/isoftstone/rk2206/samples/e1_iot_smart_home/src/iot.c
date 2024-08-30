@@ -24,7 +24,6 @@
 #include "los_task.h"
 #include "ohos_init.h"
 #include "smart_home_event.h"
-#include "environment.h"
 
 #define MQTT_DEVICES_PWD "12345678"
 
@@ -320,23 +319,6 @@ void mqtt_init() {
 
   printf("Starting MQTT...\n");
 
-  
-  if (env_get(env_iot_deviceid, mqtt_devid, sizeof(mqtt_devid)) < 0) {
-    printf("get deviceid failed\n");
-    
-  }
-  if (env_get(env_iot_password, mqtt_pwd, sizeof(mqtt_pwd)) < 0) {
-    printf("get password failed\n");
-    
-  }
-  if (env_get(env_iot_username, mqtt_username, sizeof(mqtt_username)) < 0) {
-    printf("get username failed\n");
-    
-  }
-  if (env_get(env_iot_hostaddr, mqtt_hostaddr, sizeof(mqtt_hostaddr)) < 0) {
-    printf("get hostaddr failed\n");
-    
-  }
   /*网络初始化*/
   NetworkInit(&network);
 
