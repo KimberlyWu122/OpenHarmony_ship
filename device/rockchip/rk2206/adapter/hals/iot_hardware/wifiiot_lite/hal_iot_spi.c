@@ -19,9 +19,10 @@
 
 #define SPI_MAX_SPEED 50000000
 
-struct SpiBusInfo {
-  unsigned int id;
-  SpiBusIo spi_bus;
+struct SpiBusInfo
+{
+    unsigned int id;
+    SpiBusIo spi_bus;
 };
 
 static struct SpiBusInfo m_spi_bus_info[ESPIDEV_MAX] = 
@@ -77,12 +78,13 @@ unsigned int IoTSpiInit(unsigned int id, IoT_SPI_InitTypeDef *iot_spi)
     unsigned int ret = 0;
     LzSpiConfig spi_config = {0};
 
-    if (id >= ESPIDEV_MAX) {
+    if (id >= ESPIDEV_MAX)
+    {
         PRINT_ERR("id(%d) >= ESPIDEV_MAX(%d)\n", id, ESPIDEV_MAX);
         return IOT_FAILURE;
-    }    
+    }
 
-    if (iot_spi->Mode == SPI_MODE_SLAVE) 
+    if (iot_spi->Mode == SPI_MODE_SLAVE)
     {
         spi_config.isSlave = false;
     }
@@ -94,6 +96,13 @@ unsigned int IoTSpiInit(unsigned int id, IoT_SPI_InitTypeDef *iot_spi)
     if (iot_spi->Direction == SPI_DIRECTION_1LINE_TX)
     {
         m_spi_bus_info[id].spi_bus.miso.gpio = INVALID_GPIO;
+        m_spi_bus_info[id].spi_bus.miso.func = MUX_FUNC0;
+    }
+
+    if (iot_spi->NSS == SPI_NSS_SOFT)
+    {
+        m_spi_bus_info[id].spi_bus.cs.gpio = INVALID_GPIO;
+        m_spi_bus_info[id].spi_bus.cs.func = MUX_FUNC0;
     }
 
     if (iot_spi->DataSize == SPI_DATASIZE_8BIT)
@@ -113,33 +122,22 @@ unsigned int IoTSpiInit(unsigned int id, IoT_SPI_InitTypeDef *iot_spi)
         }
         else if (iot_spi->CLKPhase == SPI_PHASE_2EDGE)
         {
-            spi_config.mode = SPI_MODE_2;
+            spi_config.mode = SPI_MODE_1;
         }
     }
     else if (iot_spi->CLKPolarity == SPI_POLARITY_HIGH)
     {
         if (iot_spi->CLKPhase == SPI_PHASE_1EDGE)
         {
-            spi_config.mode = SPI_MODE_1;
+            spi_config.mode = SPI_MODE_2;
         }
         else if (iot_spi->CLKPhase == SPI_PHASE_2EDGE)
         {
             spi_config.mode = SPI_MODE_3;
-        }        
+        }
     }
 
-    if (iot_spi->BaudRatePrescaler == SPI_BAUDRATEPRESCALER_1)
-    {
-        spi_config.speed = SPI_MAX_SPEED;
-    }
-    else if (iot_spi->BaudRatePrescaler == SPI_BAUDRATEPRESCALER_2)
-    {
-        spi_config.speed = SPI_MAX_SPEED / 2;
-    }
-    else if (iot_spi->BaudRatePrescaler == SPI_BAUDRATEPRESCALER_4)
-    {
-        spi_config.speed = SPI_MAX_SPEED / 4;
-    }
+    spi_config.speed = SPI_MAX_SPEED / (1 << iot_spi->BaudRatePrescaler);
 
     if (iot_spi->FirstBit == SPI_FIRSTBIT_MSB)
     {
@@ -152,12 +150,14 @@ unsigned int IoTSpiInit(unsigned int id, IoT_SPI_InitTypeDef *iot_spi)
 
     spi_config.csm = SPI_CMS_ONE_CYCLES;
 
-    if (SpiIoInit(m_spi_bus_info[id].spi_bus) != LZ_HARDWARE_SUCCESS) {
+    if (SpiIoInit(m_spi_bus_info[id].spi_bus) != LZ_HARDWARE_SUCCESS)
+    {
         printf("%s, %d: SpiIoInit failed!\n", __FILE__, __LINE__);
         return IOT_FAILURE;
     }
 
-    if (LzSpiInit(m_spi_bus_info[id].id, spi_config) != LZ_HARDWARE_SUCCESS) {
+    if (LzSpiInit(m_spi_bus_info[id].id, spi_config) != LZ_HARDWARE_SUCCESS)
+    {
         printf("%s, %d: LzSpiInit failed!\n", __FILE__, __LINE__);
         return IOT_FAILURE;
     }
@@ -169,13 +169,19 @@ unsigned int IoTSpiDeinit(unsigned int id)
 {
     unsigned int ret = 0;
 
-    if (id >= ESPIDEV_MAX) {
+    if (id >= ESPIDEV_MAX)
+    {
         PRINT_ERR("id(%d) >= ESPIDEV_MAX(%d)\n", id, ESPIDEV_MAX);
         return IOT_FAILURE;
     }
 
-    ret = LzSpiDeinit(id);
-    if (ret != LZ_HARDWARE_SUCCESS) 
+    LzGpioDeinit(m_spi_bus_info[id].spi_bus.clk.gpio);
+    LzGpioDeinit(m_spi_bus_info[id].spi_bus.cs.gpio);
+    LzGpioDeinit(m_spi_bus_info[id].spi_bus.miso.gpio);
+    LzGpioDeinit(m_spi_bus_info[id].spi_bus.mosi.gpio);
+
+    ret = LzSpiDeinit(m_spi_bus_info[id].id);
+    if (ret != LZ_HARDWARE_SUCCESS)
     {
         return IOT_FAILURE;
     }
@@ -187,13 +193,14 @@ unsigned int IoTSpiWrite(unsigned int id, unsigned char *buf, unsigned int len)
 {
     unsigned int ret = 0;
 
-    if (id >= ESPIDEV_MAX) {
+    if (id >= ESPIDEV_MAX)
+    {
         PRINT_ERR("id(%d) >= ESPIDEV_MAX(%d)\n", id, ESPIDEV_MAX);
         return IOT_FAILURE;
-    } 
+    }
 
     ret = LzSpiWrite(m_spi_bus_info[id].id, m_spi_bus_info[id].id, buf, len);
-    if (ret != LZ_HARDWARE_SUCCESS) 
+    if (ret != LZ_HARDWARE_SUCCESS)
     {
         return IOT_FAILURE;
     }
@@ -205,16 +212,36 @@ unsigned int IoTSpiRead(unsigned int id, unsigned char *buf, unsigned int len)
 {
     unsigned int ret = 0;
 
-    if (id >= ESPIDEV_MAX) {
+    if (id >= ESPIDEV_MAX)
+    {
         PRINT_ERR("id(%d) >= ESPIDEV_MAX(%d)\n", id, ESPIDEV_MAX);
         return IOT_FAILURE;
-    } 
+    }
 
     ret = LzSpiRead(m_spi_bus_info[id].id, m_spi_bus_info[id].id, buf, len);
-    if (ret != LZ_HARDWARE_SUCCESS) 
+    if (ret != LZ_HARDWARE_SUCCESS)
     {
         return IOT_FAILURE;
     }
 
-    return IOT_SUCCESS;    
+    return IOT_SUCCESS;
+}
+
+unsigned int IoTSpiWriteRead(unsigned int id, unsigned char *write_buf, unsigned int write_len, unsigned char *read_buf, unsigned int read_len)
+{
+    unsigned int ret = 0;
+
+    if (id >= ESPIDEV_MAX)
+    {
+        PRINT_ERR("id(%d) >= ESPIDEV_MAX(%d)\n", id, ESPIDEV_MAX);
+        return IOT_FAILURE;
+    }
+
+    ret = LzSpiWriteThenRead(m_spi_bus_info[id].id, m_spi_bus_info[id].id, write_buf, write_len, read_buf, read_len);
+    if (ret != LZ_HARDWARE_SUCCESS)
+    {
+        return IOT_FAILURE;
+    }
+
+    return IOT_SUCCESS;
 }

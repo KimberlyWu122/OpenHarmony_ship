@@ -11,17 +11,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//drivers/adapter/khdf/liteos_m/hdf.gni")
 import("//device/rockchip/rk2206/sdk_liteos/board.gni")
+import("//drivers/adapter/khdf/liteos_m/hdf.gni")
 
 static_library("board") {
   sources = [
-      "./startup/startup_rk2206.S",
-      "./dprintf.c",
-      "./main.c",
-      # "./iotmain.c",
-      "./src/config_network.c",
-      "uart.c",
+    "dprintf.c",
+    "iotmain.c",
+    "main.c",
+    "src/config_network.c",
+    "startup/startup_rk2206.S",
+    "uart.c",
   ]
 
   include_dirs = [
@@ -29,8 +29,8 @@ static_library("board") {
     "$kernel_path/kernel/arch/include",
     "$kernel_path/utils",
     "$kernel_path/kal/cmsis",
-    "$hilog_path/interfaces/native/kits",
     "$kernel_path/components/shell/include",
+    "$hilog_path/interfaces/native/kits",
     "$adapter_path/include",
     "./include",
     "../shell/include",
@@ -44,5 +44,5 @@ static_library("board") {
     "$khdf_path/osal/include",
   ]
 
-  deps = [ ]
+  deps = []
 }

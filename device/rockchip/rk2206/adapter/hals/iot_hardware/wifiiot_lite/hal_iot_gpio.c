@@ -160,6 +160,8 @@ unsigned int IoTGpioRegisterIsrFunc(unsigned int id, IotGpioIntType intType, Iot
         type = LZGPIO_INT_EDGE_FALLING;
     else if (intType == IOT_INT_TYPE_EDGE && intPolarity == IOT_GPIO_EDGE_RISE_LEVEL_HIGH)
         type = LZGPIO_INT_EDGE_RISING;
+    else if (intType == IOT_INT_TYPE_EDGE && intPolarity == IOT_GPIO_EDGE_BOTH_TYPE)
+        type = LZGPIO_INT_EDGE_BOTH;
     else
         return IOT_FAILURE;
 

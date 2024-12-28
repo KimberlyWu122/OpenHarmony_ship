@@ -68,15 +68,16 @@ STATIC UINT32 g_wifiTask;
 STATIC UINT32 g_softbusliteTask;
 STATIC UINT32 g_apTask;
 
-typedef struct 
+typedef struct
 {
     bool   init;
     bool   ap_on;
     bool   sta_on;
     UINT32 muxlock;
-}wifi_mode_lock_t;
+} wifi_mode_lock_t;
 
-wifi_mode_lock_t m_wml = {
+wifi_mode_lock_t m_wml =
+{
     .init   = false,
     .ap_on  = false,
     .sta_on = false,

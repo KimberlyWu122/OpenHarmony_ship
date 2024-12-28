@@ -30,6 +30,9 @@ static DevIo m_adcKey = {
     .ctrl2 = {.gpio = INVALID_GPIO},
 };
 
+/* 初始化 ADC 次数 */
+static uint8_t init_adc_cnt = 0;
+
 unsigned int IoTAdcInit(unsigned int id) {
 
   unsigned int ret = 0;
@@ -50,11 +53,17 @@ unsigned int IoTAdcInit(unsigned int id) {
     return IOT_FAILURE;
   }
 
-  ret = LzSaradcInit();
-  if (ret != LZ_HARDWARE_SUCCESS) {
-    PRINT_ERR("%s, %s, %d: ADC Init fail\n", __FILE__, __func__, __LINE__);
-    return IOT_FAILURE;
+  /* LzSaradcInit 接口只要初始化一次 */
+  if(!init_adc_cnt) { 
+    ret = LzSaradcInit();
+    if (ret != LZ_HARDWARE_SUCCESS) {
+      PRINT_ERR("%s, %s, %d: ADC Init fail\n", __FILE__, __func__, __LINE__);
+      return IOT_FAILURE;
+    }
   }
+
+  /* 记录调用该接口次数 */
+  init_adc_cnt++;
 
   /* 设置saradc的电压信号，选择AVDD */
   ulValue = *pGrfSocCon29;
@@ -74,11 +83,18 @@ unsigned int IoTAdcDeinit(unsigned int id) {
     return IOT_FAILURE;
   }
 
-  ret = LzSaradcDeinit();
+  m_adcKey.ctrl1.gpio = GPIO0_PC0 + id;
 
-  if (ret != LZ_HARDWARE_SUCCESS) {
-    PRINT_ERR("%s, %s, %d: ADC Deinit Fail\n", __FILE__, __func__, __LINE__);
-    return IOT_FAILURE;
+  LzGpioDeinit(m_adcKey.ctrl1.gpio);
+  init_adc_cnt--;
+
+  /* 当 init_adc_cnt 为 0 调用 LzSaradcDeinit 注销  */
+  if(!init_adc_cnt) {
+    ret = LzSaradcDeinit();
+    if (ret != LZ_HARDWARE_SUCCESS) {
+      PRINT_ERR("%s, %s, %d: ADC Deinit Fail\n", __FILE__, __func__, __LINE__);
+      return IOT_FAILURE;
+    }
   }
 
   return IOT_SUCCESS;

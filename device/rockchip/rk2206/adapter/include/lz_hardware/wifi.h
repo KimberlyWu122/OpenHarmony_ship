@@ -24,7 +24,7 @@
 
 #define WIFI_MAX_SSID_LEN    33 // 32 + \0
 #define WIFI_MAC_LEN         6
-#define WIFI_MAX_KEY_LEN     65 // 64 + \0
+#define WIFI_MAX_KEY_LEN     64 // 63 + \0
 
 typedef struct _WifiScanResult {
     /** Service set ID (SSID). For its length. */

@@ -21,7 +21,6 @@
 #include "los_compiler.h"
 #include "lz_hardware.h"
 #include "config_network.h"
-
 #include "uart.h"
 #include "shell_cmd.h"
 
@@ -30,11 +29,11 @@ int DeviceManagerStart();
 void IotInit(void);
 
 /*****************************************************************************
- Function    : main
- Description : Main function entry
- Input       : None
- Output      : None
- Return      : None
+ * Function    : main
+ * Description : Main function entry
+ * Input       : None
+ * Output      : None
+ * Return      : None
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT int Main(void)
 {
@@ -42,22 +41,24 @@ LITE_OS_SEC_TEXT_INIT int Main(void)
     LZ_HARDWARE_LOGD(MAIN_TAG, "%s: enter ...", __func__);
     
     HalInit();
-
+    
     ret = LOS_KernelInit();
-    if (ret == LOS_OK) {
+    if (ret == LOS_OK)
+    {
         OHOS_SystemInit();
         UartDebugInit();
         LosShellInit();
         shell_cmd_init();
-        // IotInit();
-        /* 开启驱动管理服务 */
+        //IotInit();
+        // 开启驱动管理服务
         //DeviceManagerStart();
         //ExternalTaskConfigNetwork();
         LZ_HARDWARE_LOGD(MAIN_TAG, "%s: LOS_Start ...", __func__);
         LOS_Start();
     }
-
-    while (1) {
+    
+    while (1)
+    {
         __asm volatile("wfi");
     }
 }

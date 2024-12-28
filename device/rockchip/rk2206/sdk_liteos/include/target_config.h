@@ -126,11 +126,13 @@ extern unsigned int _heap_start;
 =============================================================================*/
 // #define LITE_OS_SEC_VEC __attribute__ ((section(".data")))
 
+
 /*=============================================================================
                                        shell module configuration
 =============================================================================*/
 #define LOSCFG_USE_SHELL                                    1
 #define LOSCFG_SHELL_PRIO                                   3
+
 
 #ifdef __cplusplus
 #if __cplusplus

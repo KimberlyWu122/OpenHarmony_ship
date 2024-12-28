@@ -77,7 +77,6 @@ board_include_dirs = [
     "//kernel/liteos_m/kal/cmsis",
     "//kernel/liteos_m/components/net/lwip-2.1/porting/include",
     "//third_party/FatFs/source",
-#    "//third_party/musl/porting/liteos_m/kernel/include",
     "//third_party/musl/arch/arm",
     "//third_party/lwip/src/include",
     "//utils/native/lite/include",

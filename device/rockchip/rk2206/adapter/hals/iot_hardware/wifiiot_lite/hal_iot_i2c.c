@@ -17,7 +17,8 @@
 #include "iot_i2c.h"
 #include "lz_hardware.h"
 
-struct I2cBusInfo {
+struct I2cBusInfo
+{
   unsigned int id;
   I2cBusIo i2c_bus;
 };
@@ -181,17 +182,20 @@ static struct I2cBusInfo
 };
 
 unsigned int IoTI2cWrite(unsigned int id, unsigned short deviceAddr,
-                         const unsigned char *data, unsigned int dataLen) {
+                         const unsigned char *data, unsigned int dataLen)
+{
 
   unsigned int ret = 0;
 
-  if (id >= EI2CDEV_MAX) {
+  if (id >= EI2CDEV_MAX)
+  {
     PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
     return IOT_FAILURE;
   }
 
   ret = LzI2cWrite(m_i2c_bus_info[id].id, deviceAddr, data, dataLen);
-  if (ret != LZ_HARDWARE_SUCCESS) {
+  if (ret != LZ_HARDWARE_SUCCESS)
+  {
     return IOT_FAILURE;
   }
 
@@ -199,39 +203,45 @@ unsigned int IoTI2cWrite(unsigned int id, unsigned short deviceAddr,
 }
 
 unsigned int IoTI2cRead(unsigned int id, unsigned short deviceAddr,
-                        unsigned char *data, unsigned int dataLen) {
+                        unsigned char *data, unsigned int dataLen)
+{
 
   unsigned int ret = 0;
 
-  if (id >= EI2CDEV_MAX) {
+  if (id >= EI2CDEV_MAX)
+  {
     PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
     return IOT_FAILURE;
   }
 
   ret = LzI2cRead(m_i2c_bus_info[id].id, deviceAddr, data, dataLen);
-  if (ret != LZ_HARDWARE_SUCCESS) {
+  if (ret != LZ_HARDWARE_SUCCESS)
+  {
     return IOT_FAILURE;
   }
 
   return IOT_SUCCESS;
 }
 
-unsigned int IoTI2cInit(unsigned int id, unsigned int baudrate) {
+unsigned int IoTI2cInit(unsigned int id, unsigned int baudrate)
+{
 
   unsigned int ret = 0;
   unsigned int fre = 100000;
 
-  if (id >= EI2CDEV_MAX) {
+  if (id >= EI2CDEV_MAX)
+  {
     PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
     return IOT_FAILURE;
   }
 
-  if (baudrate >= EI2C_FRE_MAX) {
+  if (baudrate >= EI2C_FRE_MAX)
+  {
     PRINT_ERR("baudrate(%d) >= EI2C_FRE_MAX(%d)\n", baudrate, EI2C_FRE_MAX);
-    return IOT_FAILURE;
   }
 
-  switch (baudrate) {
+  switch (baudrate)
+  {
   case EI2C_FRE_100K:
     fre = 100000;
     break;
@@ -241,54 +251,69 @@ unsigned int IoTI2cInit(unsigned int id, unsigned int baudrate) {
   case EI2C_FRE_1000K:
     fre = 1000000;
     break;
+  default:
+    fre = 100000;
+    break;
   }
 
   ret = I2cIoInit(m_i2c_bus_info[id].i2c_bus);
-  if (ret != LZ_HARDWARE_SUCCESS) {
+  if (ret != LZ_HARDWARE_SUCCESS)
+  {
     return IOT_FAILURE;
   }
 
   ret = LzI2cInit(m_i2c_bus_info[id].id, baudrate);
-  if (ret != LZ_HARDWARE_SUCCESS) {
+  if (ret != LZ_HARDWARE_SUCCESS)
+  {
     return IOT_FAILURE;
   }
 
   return IOT_SUCCESS;
 }
 
-unsigned int IoTI2cDeinit(unsigned int id) {
+unsigned int IoTI2cDeinit(unsigned int id)
+{
 
   unsigned int ret = 0;
 
-  if (id >= EI2CDEV_MAX) {
+  if (id >= EI2CDEV_MAX)
+  {
     PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
     return IOT_FAILURE;
   }
 
+  LzGpioDeinit(m_i2c_bus_info[id].i2c_bus.scl.gpio);
+  LzGpioDeinit(m_i2c_bus_info[id].i2c_bus.sda.gpio);
+
   ret = LzI2cDeinit(m_i2c_bus_info[id].id);
-  if (ret != LZ_HARDWARE_SUCCESS) {
+  if (ret != LZ_HARDWARE_SUCCESS)
+  {
     return IOT_FAILURE;
   }
 
   return IOT_SUCCESS;
 }
 
-unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate) {
+unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate)
+{
 
   unsigned int ret = 0;
   unsigned int fre = 100000;
 
-  if (id >= EI2CDEV_MAX) {
+  if (id >= EI2CDEV_MAX)
+  {
     PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
     return IOT_FAILURE;
   }
 
-  if (baudrate >= EI2C_FRE_MAX) {
+  if (baudrate >= EI2C_FRE_MAX)
+  {
     PRINT_ERR("baudrate(%d) >= EI2C_FRE_MAX(%d)\n", baudrate, EI2C_FRE_MAX);
     return IOT_FAILURE;
   }
 
-  switch (baudrate) {
+  switch (baudrate)
+  {
   case EI2C_FRE_100K:
     fre = 100000;
     break;
@@ -301,7 +326,8 @@ unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate) {
   }
 
   ret = LzI2cSetFreq(m_i2c_bus_info[id].id, baudrate);
-  if (ret != LZ_HARDWARE_SUCCESS) {
+  if (ret != LZ_HARDWARE_SUCCESS)
+  {
     return IOT_FAILURE;
   }
 
@@ -309,10 +335,12 @@ unsigned int IoTI2cSetBaudrate(unsigned int id, unsigned int baudrate) {
 }
 
 unsigned int IoTI2cScan(unsigned int id, unsigned short *slaveAddr,
-                        unsigned int slaveAddrLen) {
+                        unsigned int slaveAddrLen)
+{
   unsigned int i2c_dev_num = 0;
 
-  if (id >= EI2CDEV_MAX) {
+  if (id >= EI2CDEV_MAX)
+  {
     PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EI2CDEV_MAX);
     return IOT_FAILURE;
   }
