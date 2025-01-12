@@ -14,6 +14,7 @@
  */
 #ifndef _CONFIG_WORK_H_
 #define _CONFIG_WORK_H_
+
 #include "wifi_device.h"
 #include "wifi_hotspot.h"
 #include "lwip/inet.h"
@@ -59,25 +60,7 @@ typedef struct RK_NETWORK_CONFIG {
     char  rknc_data[]; // ssid data + password data
 } RKNetworkConfig;
 
-#define WIFI_MAX_SN_LEN  VENDOR_ID_SIZE
-typedef struct 
-{
-    uint8_t sn[WIFI_MAX_SN_LEN];
-    uint8_t product[WIFI_MAX_SN_LEN];
-    uint8_t factory[WIFI_MAX_SN_LEN];
-    uint8_t mode[4];
-    uint8_t hwaddr[6] ;
-    uint8_t ip[4]     ;
-    uint8_t gateway[4];
-    uint8_t mask[4]   ;
-    uint8_t ssid[WIFI_MAX_SSID_LEN];
-    uint8_t password[WIFI_MAX_KEY_LEN];
-    uint8_t route_ssid[WIFI_MAX_SSID_LEN];
-    uint8_t route_password[WIFI_MAX_KEY_LEN];
-    
-}wifi_config_t;
-typedef int (*printf_fn)(const char *fmt, ...);
-
+#define WIFI_MAX_SN_LEN             (VENDOR_ID_SIZE)
 #define WIFI_MAX_LEN_SN             (VENDOR_ID_SIZE)
 #define WIFI_MAX_LEN_PRODUCT        (VENDOR_ID_SIZE)
 #define WIFI_MAX_LEN_FACTORY        (VENDOR_ID_SIZE)
@@ -91,6 +74,22 @@ typedef int (*printf_fn)(const char *fmt, ...);
 #define WIFI_MAX_LEN_ROUTE_SSID     (WIFI_MAX_SSID_LEN)
 #define WIFI_MAX_LEN_ROUTE_PASSWD   (WIFI_MAX_KEY_LEN)
 
+typedef struct 
+{
+    uint8_t sn[WIFI_MAX_LEN_SN];
+    uint8_t product[WIFI_MAX_LEN_PRODUCT];
+    uint8_t factory[WIFI_MAX_LEN_FACTORY];
+    uint8_t mode[WIFI_MAX_LEN_MODE];
+    uint8_t hwaddr[WIFI_MAX_LEN_MAC];
+    uint8_t ip[WIFI_MAX_LEN_IP];
+    uint8_t gateway[WIFI_MAX_LEN_GATEWAY];
+    uint8_t mask[WIFI_MAX_LEN_MASK];
+    uint8_t ssid[WIFI_MAX_LEN_AP_SSID];
+    uint8_t password[WIFI_MAX_LEN_AP_PASSWD];
+    uint8_t route_ssid[WIFI_MAX_LEN_ROUTE_SSID];
+    uint8_t route_password[WIFI_MAX_LEN_ROUTE_PASSWD];
+}wifi_config_t;
+typedef int (*printf_fn)(const char *fmt, ...);
 #define WIFI_CONFIG_KEY_SN              "sn"
 #define WIFI_CONFIG_KEY_PRODUCT         "product"
 #define WIFI_CONFIG_KEY_FACTORY         "factory"
@@ -103,7 +102,6 @@ typedef int (*printf_fn)(const char *fmt, ...);
 #define WIFI_CONFIG_KEY_AP_PASSWD       "ap_passwd"
 #define WIFI_CONFIG_KEY_ROUTE_SSID      "route_ssid"
 #define WIFI_CONFIG_KEY_ROUTE_PASSWD    "route_passwd"
-
 
 #define WIFI_CONFIG_KEY_MODE_AP         "AP"
 #define WIFI_CONFIG_KEY_MODE_STA        "STA"
@@ -125,7 +123,6 @@ WifiErrorCode SetApModeOn();
 WifiErrorCode SetApModeOff();
 WifiErrorCode SetWifiModeOff();
 WifiErrorCode SetWifiModeOn();
-
 
 UINT32 ExternalTaskConfigNetwork(VOID);
 int ExternalSyncBCState(RKBoardConfig BCstate);

@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-
 #include "iot_errno.h"
 #include "iot_uart.h"
 #include "lz_hardware.h"
 
-struct UartBusInfo {
-  unsigned int id;
-  UartBusIo uart_bus;
+struct UartBusInfo
+{
+    unsigned int id;
+    UartBusIo uart_bus;
 };
 
 static struct UartBusInfo m_uart_bus_info[EUARTDEV_MAX] = {
@@ -86,7 +86,8 @@ unsigned int IoTUartInit(unsigned int id, const IotUartAttribute *param)
     unsigned int ret = 0;
     UartAttribute *temp_prt = (const UartAttribute *)param;
 
-    if (id >= EUARTDEV_MAX) {
+    if (id >= EUARTDEV_MAX)
+    {
         PRINT_ERR("id(%d) >= EUARTDEV_MAX(%d)\n", id, EUARTDEV_MAX);
         return IOT_FAILURE;
     }
@@ -107,8 +108,15 @@ unsigned int IoTUartInit(unsigned int id, const IotUartAttribute *param)
         temp_prt->parity = UART_PARITY_ODD;
     }
 
+    if (m_uart_bus_info[id].id == 0)
+    {
+        LzUartDeinit(m_uart_bus_info[id].id);
+        uint32_t *pUart0 = (uint32_t *)(0x40070000U);
+        HAL_UART_DeInit(pUart0);
+    }
+
     ret = LzUartInit(m_uart_bus_info[id].id, temp_prt);
-    if (ret != LZ_HARDWARE_SUCCESS) 
+    if (ret != LZ_HARDWARE_SUCCESS)
     {
         return IOT_FAILURE;
     }
@@ -120,13 +128,14 @@ int IoTUartRead(unsigned int id, unsigned char *data, unsigned int dataLen)
 {
     unsigned int ret = 0;
 
-    if (id >= EUARTDEV_MAX) {
+    if (id >= EUARTDEV_MAX)
+    {
         PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EUARTDEV_MAX);
         return IOT_FAILURE;
     }
 
     ret = LzUartRead(m_uart_bus_info[id].id, data, dataLen);
-    
+
     return ret;
 }
 
@@ -134,13 +143,14 @@ int IoTUartWrite(unsigned int id, const unsigned char *data, unsigned int dataLe
 {
     unsigned int ret = 0;
 
-    if (id >= EUARTDEV_MAX) {
+    if (id >= EUARTDEV_MAX)
+    {
         PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EUARTDEV_MAX);
         return IOT_FAILURE;
     }
 
     ret = LzUartWrite(m_uart_bus_info[id].id, data, dataLen);
-    if (ret != LZ_HARDWARE_SUCCESS) 
+    if (ret != LZ_HARDWARE_SUCCESS)
     {
         return IOT_FAILURE;
     }
@@ -152,13 +162,14 @@ unsigned int IoTUartDeinit(unsigned int id)
 {
     unsigned int ret = 0;
 
-    if (id >= EUARTDEV_MAX) {
+    if (id >= EUARTDEV_MAX)
+    {
         PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EUARTDEV_MAX);
         return IOT_FAILURE;
     }
 
     ret = LzUartDeinit(m_uart_bus_info[id].id);
-    if (ret != LZ_HARDWARE_SUCCESS) 
+    if (ret != LZ_HARDWARE_SUCCESS)
     {
         return IOT_FAILURE;
     }
@@ -170,13 +181,14 @@ unsigned int IoTUartSetFlowCtrl(unsigned int id, IotFlowCtrl flowCtrl)
 {
     unsigned int ret = 0;
 
-    if (id >= EUARTDEV_MAX) {
+    if (id >= EUARTDEV_MAX)
+    {
         PRINT_ERR("id(%d) >= EI2CDEV_MAX(%d)\n", id, EUARTDEV_MAX);
         return IOT_FAILURE;
     }
 
     ret = LzUartSetFlowCtrl(m_uart_bus_info[id].id, (FlowCtrl)flowCtrl);
-    if (ret != LZ_HARDWARE_SUCCESS) 
+    if (ret != LZ_HARDWARE_SUCCESS)
     {
         return IOT_FAILURE;
     }

@@ -48,4 +48,5 @@
 #include "lz_hardware/efuse.h"
 
 unsigned int HalInit(void);
-#endif
+
+#endif // _LZ_HARDWARE_H_

@@ -43,7 +43,6 @@ typedef struct tag_fifo
 
 static fifo_t m_uart_recv_fifo;
 
-
 static void task_uart_debug_recv_process()
 {
     UINT8 data = 0;

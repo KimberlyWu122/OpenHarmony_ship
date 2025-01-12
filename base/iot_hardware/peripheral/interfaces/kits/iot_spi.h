@@ -79,6 +79,11 @@ typedef enum
     SPI_BAUDRATEPRESCALER_1 = 0,
     SPI_BAUDRATEPRESCALER_2,
     SPI_BAUDRATEPRESCALER_4,
+    SPI_BAUDRATEPRESCALER_8,
+    SPI_BAUDRATEPRESCALER_16,
+    SPI_BAUDRATEPRESCALER_32,
+    SPI_BAUDRATEPRESCALER_64,
+    SPI_BAUDRATEPRESCALER_128,
 } IoT_SPI_BaudRate; 
 
 /** @defgroup SPI_Direction SPI Direction Mode
@@ -91,6 +96,15 @@ typedef enum
     SPI_DIRECTION_1LINE_TX,
 } IoT_SPI_Direction; 
 
+/** @defgroup SPI_NSS SPI NSS Mode
+  * 
+  */
+typedef enum
+{
+    SPI_NSS_HARD = 0,
+    SPI_NSS_SOFT,
+} IoT_SPI_NSS; 
+
 typedef struct
 {
   unsigned int Mode;       
@@ -99,7 +113,8 @@ typedef struct
   unsigned int CLKPolarity;       
   unsigned int CLKPhase;            
   unsigned int BaudRatePrescaler;  
-  unsigned int FirstBit;        
+  unsigned int FirstBit;   
+  unsigned int NSS;     
 } IoT_SPI_InitTypeDef;
 
 /**
@@ -142,5 +157,18 @@ unsigned int IoTSpiWrite(unsigned int id, unsigned char *buf, unsigned int len);
  * returns {@link IOT_FAILURE} otherwise. For details about other return values, see the chip description.
  */
 unsigned int IoTSpiRead(unsigned int id, unsigned char *buf, unsigned int len);
+
+/**
+ * @brief Write Then Read data from an SPI device.
+ * 
+ * @param id Indicates the SPI device ID. 
+ * @param write_buf Indicates the pointer to the data to write.
+ * @param write_len Indicates the length of the data to write.
+ * @param read_buf Indicates the pointer to the data to read.
+ * @param read_len Indicates the length of the data to read.
+ * @return Returns {@link IOT_SUCCESS} if the data is written to the I2C device successfully;
+ * returns {@link IOT_FAILURE} otherwise. For details about other return values, see the chip description.
+ */
+unsigned int IoTSpiWriteRead(unsigned int id, unsigned char *write_buf, unsigned int write_len, unsigned char *read_buf, unsigned int read_len);
 
 #endif

@@ -201,6 +201,21 @@ static struct PwmBusInfo m_pwm_bus_info[EPWMDEV_MAX] = {
             .mode = FUNC_MODE_NONE,
         },
     },
+    [EPWMDEV_PWM3_M1] = {
+        .port = 3,
+        .pwm_bus = {
+            .pwm = {
+                .gpio = GPIO0_PB7,
+                .func = MUX_FUNC1,
+                .type = PULL_DOWN,
+                .drv = DRIVE_KEEP,
+                .dir = LZGPIO_DIR_KEEP,
+                .val = LZGPIO_LEVEL_KEEP
+            },
+            .id  = FUNC_ID_PWM3,
+            .mode = FUNC_MODE_NONE,
+        },
+    },
 };
 
 unsigned int IoTPwmInit(unsigned int port)
@@ -228,6 +243,8 @@ unsigned int IoTPwmDeinit(unsigned int port)
         PRINT_ERR("port(%d) >= EPWMDEV_MAX(%d)\n", port, EPWMDEV_MAX);
         return IOT_FAILURE;
     }
+
+    LzGpioDeinit(m_pwm_bus_info[port].pwm_bus.pwm.gpio);
 
     LzPwmDeinit(m_pwm_bus_info[port].port);
     
@@ -274,7 +291,7 @@ unsigned int IoTPwmStop(unsigned int port)
         return IOT_FAILURE;
     }
 
-    LzPwmStop(m_pwm_bus_info[port].port);
+    LzPwmStart(m_pwm_bus_info[port].port, 0, 0);
 
     return IOT_SUCCESS;
 }

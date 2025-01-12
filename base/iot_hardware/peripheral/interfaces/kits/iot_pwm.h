@@ -55,6 +55,7 @@ enum EnumPwmDev {
     EPWMDEV_PWM6_M0,        /* GPIO_PC6 */
     EPWMDEV_PWM7_M0,        /* GPIO_PC7 */
     EPWMDEV_PWM7_M1,        /* GPIO_PD0 */
+    EPWMDEV_PWM3_M1,        /* GPIO_PB7 */
     EPWMDEV_MAX
 };
 

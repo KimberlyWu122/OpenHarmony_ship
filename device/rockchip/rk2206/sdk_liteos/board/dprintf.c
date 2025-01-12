@@ -18,22 +18,22 @@
 #include "lz_hardware.h"
 
 #define DEBUG_PORT              1
+#define BUFFER_MAXSIZE          256
 
 int printf(char const  *fmt, ...)
 {
     va_list ap;
-    char buffer[256];
-
+    unsigned char buffer[BUFFER_MAXSIZE];
+    
     va_start(ap, fmt);
-    vsnprintf(buffer, 256, fmt, ap);
-    // DebugWrite(DEBUG_PORT, (const unsigned char *)buffer, strlen(buffer));
-    // DebugPutc(DEBUG_PORT, '\n');
-    for(int i=0;i<strlen(buffer);i++){
-        //当发现换行符，则自动添加回车,注意当下标为0直接添加回车
-        if(buffer[i]=='\n' && (( i>0 && buffer[i-1]!='\r') ||(i==0 ))){
+    vsnprintf(buffer, BUFFER_MAXSIZE, fmt, ap);
+    for (int i = 0; i < strlen(buffer); i++)
+    {
+        // 当发现换行符，则自动添加回车,注意当下标为0直接添加回车
+        if (buffer[i] == '\n' && (( i > 0 && buffer[i - 1] != '\r') || (i == 0)))
+        {
             DebugPutc(DEBUG_PORT, '\r');
         }
-        
         DebugPutc(DEBUG_PORT, buffer[i]);
     }
     va_end(ap);

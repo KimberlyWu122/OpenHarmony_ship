@@ -41,6 +41,7 @@
 #ifndef IOT_I2C_H
 #define IOT_I2C_H
 
+
 /* 定义I2C速率 */
 enum EnumI2cFre {
   EI2C_FRE_100K = 0,

@@ -78,7 +78,9 @@ typedef enum {
     /** Interrupt at a low level or falling edge */
     IOT_GPIO_EDGE_FALL_LEVEL_LOW = 0,
     /** Interrupt at a high level or rising edge */
-    IOT_GPIO_EDGE_RISE_LEVEL_HIGH
+    IOT_GPIO_EDGE_RISE_LEVEL_HIGH,
+    /** Interrupt at a falling edge or rising edge */
+    IOT_GPIO_EDGE_BOTH_TYPE,
 } IotGpioIntPolarity;
 
 /**
