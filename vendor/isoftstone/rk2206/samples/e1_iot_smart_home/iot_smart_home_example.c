@@ -48,6 +48,8 @@ void iot_thread(void *args) {
   char password[32]=ROUTE_PASSWORD;
   char mac_addr[32]={0};
 
+  FlashDeinit();
+  FlashInit();
 
   VendorSet(VENDOR_ID_WIFI_MODE, "STA", 3); // 配置为Wifi STA模式
   VendorSet(VENDOR_ID_MAC, mac_address, 6); // 多人同时做该实验，请修改各自不同的WiFi MAC地址
@@ -187,7 +189,7 @@ void iot_smart_home_example()
     TSK_INIT_PARAM_S task_2 = {0};
     TSK_INIT_PARAM_S task_3 = {0};
     unsigned int ret = LOS_OK;
-    FlashInit();
+    
     smart_home_event_init();
     
     // ret = LOS_QueueCreate("su03_queue", MSG_QUEUE_LENGTH, &m_su03_msg_queue, 0, BUFFER_LEN);
