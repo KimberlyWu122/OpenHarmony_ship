@@ -187,7 +187,7 @@ void iot_smart_home_example()
     TSK_INIT_PARAM_S task_2 = {0};
     TSK_INIT_PARAM_S task_3 = {0};
     unsigned int ret = LOS_OK;
-    
+    FlashInit();
     smart_home_event_init();
     
     // ret = LOS_QueueCreate("su03_queue", MSG_QUEUE_LENGTH, &m_su03_msg_queue, 0, BUFFER_LEN);
