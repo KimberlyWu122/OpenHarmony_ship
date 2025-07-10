@@ -56,6 +56,13 @@
 #include <string.h>
 #include <stdlib.h>
 #endif
+#include "../../../../../third_party/mbedtls/include/mbedtls/net_sockets.h"
+#include "../../../../../third_party/mbedtls/include/mbedtls/ssl.h"
+#include "../../../../../third_party/mbedtls/include/mbedtls/entropy.h"
+#include "../../../../../third_party/mbedtls/include/mbedtls/ctr_drbg.h"
+#include "../../../../../third_party/mbedtls/include/mbedtls/error.h"
+#include "../../../../../third_party/mbedtls/include/mbedtls/debug.h"
+#include "../../../../../third_party/mbedtls/include/mbedtls/platform.h"
 
 #if defined(WIN32)
 #include <Iphlpapi.h>
@@ -104,8 +111,14 @@ int TimerLeftMS(Timer*);
 typedef struct Network
 {
 	int my_socket;
+	mbedtls_ssl_context* ssl_ctx;
+    mbedtls_ssl_config* ssl_conf;
+    mbedtls_net_context* net_ctx;
+    mbedtls_ctr_drbg_context* ctr_drbg;
+    mbedtls_entropy_context* entropy;
 	int (*mqttread) (struct Network*, unsigned char*, int, int);
 	int (*mqttwrite) (struct Network*, unsigned char*, int, int);
+	void (*disconnect) (struct Network*);
 } Network;
 
 int linux_read(Network*, unsigned char*, int, int);
@@ -114,5 +127,6 @@ int linux_write(Network*, unsigned char*, int, int);
  void NetworkInit(Network*);
  int NetworkConnect(Network*, char*, int);
  void NetworkDisconnect(Network*);
+ int TLSConnectWithoutVerify(Network* n, char* addr, int port);
 
 #endif

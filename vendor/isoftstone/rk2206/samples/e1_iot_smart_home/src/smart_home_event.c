@@ -27,3 +27,6 @@ int smart_home_event_wait(event_info_t *event,int timeoutMs){
         LOS_MS2Tick(timeoutMs));
 
 }
+int smart_home_event_waitblocking(event_info_t *event) {
+    return LOS_QueueReadCopy(event_queue_id, event, sizeof(event_info_t), LOS_WAIT_FOREVER);
+}

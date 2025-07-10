@@ -30,5 +30,6 @@ typedef struct event_info
 void smart_home_event_init();
 void smart_home_event_send(event_info_t *event);
 int smart_home_event_wait(event_info_t *event,int timeoutMs);
+int smart_home_event_waitblocking(event_info_t *event);
 
 #endif

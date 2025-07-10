@@ -1,18 +1,3 @@
-/*
- * Copyright (c) 2024 iSoftStone Education Co., Ltd.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -24,18 +9,37 @@
 #include "los_task.h"
 #include "ohos_init.h"
 #include "smart_home_event.h"
+#include "MQTTLiteOS.h"
+#include "los_queue.h"
+#include <string.h>
+#include "motor_control.h"
+#include "water_pump.h"
 
-#define MQTT_DEVICES_PWD "12345678"
 
-#define HOST_ADDR "117.78.16.25"
+extern MQTTClient client;
 
-#define DEVICE_ID "2lcmdumtiyaz-1814855693841203235_txsmart01"
+// 指令宏（与 motor/pump 保持一致）
+#define IOT_CMD_FORWARD   1
+#define IOT_CMD_LEFT      2
+#define IOT_CMD_BACKWARD  3
+#define IOT_CMD_RIGHT     4
+#define IOT_CMD_STOP      5
+#define IOT_CMD_PUMP      6
+#define IOT_CMD_AUTO_CIRCLE 7
 
-#define PUBLISH_TOPIC "$oc/devices/" DEVICE_ID "/sys/properties/report"
-#define SUBCRIB_TOPIC                                                          \
-  "$oc/devices/" DEVICE_ID "/sys/commands/+" /// request_id={request_id}"
-#define RESPONSE_TOPIC                                                         \
-  "$oc/devices/" DEVICE_ID "/sys/commands/response" /// request_id={request_id}"
+
+
+// 来自设备连接信息文件
+#define DEVICE_ID       "68480c9e32771f177b40af50_tds_1_0_0_2025061906"
+#define MQTT_DEVICES_PWD "6a16623364d8851ef2aff557cc7038b3f772a2df2ee839aa32b2970143395284"
+#define HOST_ADDR       "13f9a955a4.st1.iotda-device.cn-north-4.myhuaweicloud.com"
+#define PORT            8883
+#define USERNAME "68480c9e32771f177b40af50_tds_1"
+
+#define PUBLISH_TOPIC "$oc/devices/" USERNAME "/sys/properties/report"
+#define SUBCRIB_TOPIC "$oc/devices/" USERNAME "/sys/messages/down"
+#define RESPONSE_TOPIC "$oc/devices/" USERNAME "/sys/messages/down/response"
+
 
 #define MAX_BUFFER_LENGTH 512
 #define MAX_STRING_LENGTH 64
@@ -47,8 +51,8 @@ Network network;
 MQTTClient client;
 
 static char mqtt_devid[64]=DEVICE_ID;
-static char mqtt_pwd[64]=MQTT_DEVICES_PWD;
-static char mqtt_username[64]=DEVICE_ID;
+static char mqtt_pwd[72]=MQTT_DEVICES_PWD;
+static char mqtt_username[64]=USERNAME;
 static char mqtt_hostaddr[64]=HOST_ADDR;
 
 static char publish_topic[128] = PUBLISH_TOPIC;
@@ -82,21 +86,36 @@ void send_msg_to_mqtt(e_iot_data *iot_data) {
   if (root != NULL) {
     cJSON *serv_arr = cJSON_AddArrayToObject(root, "services");
     cJSON *arr_item = cJSON_CreateObject();
-    cJSON_AddStringToObject(arr_item, "service_id", "smartHome");
+    cJSON_AddStringToObject(arr_item, "service_id", "sensors");
     cJSON *pro_obj = cJSON_CreateObject();
     cJSON_AddItemToObject(arr_item, "properties", pro_obj);
 
     memset(str, 0, MAX_BUFFER_LENGTH);
     // 光照强度
     sprintf(str, "%5.2fLux", iot_data->illumination);
-    cJSON_AddStringToObject(pro_obj, "illumination", str);
-    // cJSON_AddNumberToObject(pro_obj, "illumination", iot_data->illumination);
+    cJSON_AddNumberToObject(pro_obj, "illumination", iot_data->illumination);
     // 温度
     sprintf(str, "%5.2f℃", iot_data->temperature);
-    cJSON_AddStringToObject(pro_obj, "temperature", str);
+    cJSON_AddNumberToObject(pro_obj, "temperature", iot_data->temperature);
     // 湿度
     sprintf(str, "%5.2f%%", iot_data->humidity);
-    cJSON_AddStringToObject(pro_obj, "humidity", str);
+    cJSON_AddNumberToObject(pro_obj, "humidity", iot_data->humidity);
+    // TDS
+    sprintf(str, "%5.2fppm", iot_data->tds_value);
+    cJSON_AddNumberToObject(pro_obj, "tds", iot_data->tds_value);
+    // ph
+    sprintf(str, "%5.2fpH", iot_data->ph_value);  
+    cJSON_AddNumberToObject(pro_obj, "ph", iot_data->ph_value);  
+    cJSON_AddNumberToObject(pro_obj, "turbidity", iot_data->turbidity);
+
+
+    sprintf(str, "%5.2fm", iot_data->ultrasonic); 
+    cJSON_AddNumberToObject(pro_obj, "ultrasonic", iot_data->ultrasonic);
+
+    cJSON_AddNumberToObject(pro_obj, "latitude", iot_data->latitude);
+
+    cJSON_AddNumberToObject(pro_obj, "longitude", iot_data->longitude);
+
     // 电机状态
     if (iot_data->motor_state == true) {
       cJSON_AddStringToObject(pro_obj, "motorStatus", "ON");
@@ -227,68 +246,106 @@ void set_auto_state(cJSON *root) {
 * 返 回 值: 无
 ***************************************************************/
 void mqtt_message_arrived(MessageData *data) {
-  int rc;
-  cJSON *root = NULL;
-  cJSON *cmd_name = NULL;
-  char *cmd_name_str = NULL;
-  char *request_id_idx = NULL;
-  char request_id[20] = {0};
-  MQTTMessage message;
-  char payload[MAX_BUFFER_LENGTH];
-  
-  char rsptopic[128] = {0};
+    int rc;
+    MQTTMessage message;
+    char payload[MAX_BUFFER_LENGTH] = {0};
+    char rsptopic[128] = {0};
 
-  printf("Message arrived on topic %.*s: %.*s\n",
-         data->topicName->lenstring.len, data->topicName->lenstring.data,
-         data->message->payloadlen, data->message->payload);
+    printf("MQTT Message arrived on topic %.*s: %.*s\n",
+           data->topicName->lenstring.len, data->topicName->lenstring.data,
+           data->message->payloadlen, (char *)data->message->payload);
 
-  // get request id
-  request_id_idx = strstr(data->topicName->lenstring.data, "request_id=");
-  strncpy(request_id, request_id_idx + 11, 19);
-  // printf("request_id = %s\n", request_id);
-
-  // create response topic
-  sprintf(response_topic,"$oc/devices/%s/sys/commands/response",mqtt_devid);
-  sprintf(rsptopic, "%s/request_id=%s", response_topic, request_id);
-  // printf("rsptopic = %s\n", rsptopic);
-
-  // response message
-  message.qos = 0;
-  message.retained = 0;
-  message.payload = payload;
-  sprintf(payload, "{ \
-    \"result_code\": 0, \
-    \"response_name\": \"COMMAND_RESPONSE\", \
-    \"paras\": { \
-        \"result\": \"success\" \
-    } \
+    message.qos = 0;
+    message.retained = 0;
+    message.payload = payload;
+    sprintf(payload, "{ \
+        \"result_code\": 0, \
+        \"response_name\": \"COMMAND_RESPONSE\", \
+        \"paras\": { \
+            \"result\": \"success\" \
+        } \
     }");
-  message.payloadlen = strlen(payload);
+    message.payloadlen = strlen(payload);
+    sprintf(rsptopic, "%s", response_topic);
 
-  // publish the msg to responese topic
-  if ((rc = MQTTPublish(&client, rsptopic, &message)) != 0) {
-    printf("Return code from MQTT publish is %d\n", rc);
-    mqttConnectFlag = 0;
-  }
-
-  /*{"command_name":"cmd","paras":{"cmd_value":"1"},"service_id":"server"}*/
-  root =
-      cJSON_ParseWithLength(data->message->payload, data->message->payloadlen);
-  if (root != NULL) {
-    cmd_name = cJSON_GetObjectItem(root, "command_name");
-    if (cmd_name != NULL) {
-      cmd_name_str = cJSON_GetStringValue(cmd_name);
-      if (!strcmp(cmd_name_str, "light_control")) {
-        set_light_state(root);
-      } else if (!strcmp(cmd_name_str, "motor_control")) {
-        set_motor_state(root);
-      } else if (!strcmp(cmd_name_str, "auto_control")) {
-        set_auto_state(root);
-      }
+    rc = MQTTPublish(&client, rsptopic, &message);
+    if (rc != 0) {
+        printf("MQTT Publish response failed: %d\n", rc);
+        mqttConnectFlag = 0;
+    } else {
+        printf("已向响应主题 %s 发布确认消息\n", rsptopic);
     }
-  }
 
-  cJSON_Delete(root);
+    cJSON *root = cJSON_ParseWithLength(data->message->payload, data->message->payloadlen);
+    if (root != NULL) {
+        cJSON *content_obj = cJSON_GetObjectItem(root, "content");
+        if (content_obj != NULL) {
+            cJSON *control_obj = cJSON_GetObjectItem(content_obj, "contro");
+            if (control_obj != NULL && cJSON_IsNumber(control_obj)) {
+                UINT32 cmd_value = (UINT32)control_obj->valueint;
+                printf("收到控制指令：contro = %u\n", cmd_value);
+                printf("control_obj->valueint = %d\n", control_obj->valueint);
+                printf("准备写入队列的值 = %u，大小 = %lu 字节\n", cmd_value, sizeof(cmd_value));
+
+                if (cmd_value >= IOT_CMD_FORWARD && cmd_value <= IOT_CMD_AUTO_CIRCLE) {
+                    printf("电机控制范围命中，准备写入 motor 队列，ID = 0x%x\n", g_motorQueueId);
+                    UINT32 ret = LOS_QueueWriteCopy(g_motorQueueId, &cmd_value, sizeof(UINT32), 0);
+                    if (ret == LOS_OK) {
+                        printf("电机指令 %u 已写入 motor 队列\n", cmd_value);
+                    } else {
+                        printf("写入 motor 队列失败，错误码: 0x%x\n", ret);
+                    }
+
+                } else if (cmd_value == IOT_CMD_PUMP) {
+                    printf("水泵采样指令命中，准备写入 pump 队列，ID = 0x%x\n", g_pumpQueueId);
+                    UINT32 ret = LOS_QueueWriteCopy(g_pumpQueueId, &cmd_value, sizeof(UINT32), 0);
+                    if (ret == LOS_OK) {
+                        printf("水泵指令 %u 已写入 pump 队列\n", cmd_value);
+                        printf("mqtt 中 g_pumpQueueId 地址: %p，值: 0x%x\n", &g_pumpQueueId, g_pumpQueueId);
+                    } else {
+                        printf("写入 pump 队列失败，错误码: 0x%x\n", ret);
+                    }
+
+                } else {
+                    printf("未知控制指令: %u，已忽略处理\n", cmd_value);
+                }
+
+                // 自动巡航指令处理：解析 gps_list
+                if (cmd_value == IOT_CMD_AUTO_CIRCLE) {
+                    cJSON *gps_list = cJSON_GetObjectItem(content_obj, "gps_list");
+                    if (gps_list != NULL && cJSON_IsArray(gps_list)) {
+                        int count = cJSON_GetArraySize(gps_list);
+                        waypointCount = (count > MAX_WAYPOINTS) ? MAX_WAYPOINTS : count;
+
+                        for (int i = 0; i < waypointCount; ++i) {
+                            cJSON *point = cJSON_GetArrayItem(gps_list, i);
+                            if (point) {
+                                cJSON *lng_obj = cJSON_GetObjectItem(point, "lng");
+                                cJSON *lat_obj = cJSON_GetObjectItem(point, "lat");
+
+                                if (lng_obj && lat_obj && cJSON_IsString(lng_obj) && cJSON_IsString(lat_obj)) {
+                                    waypointList[i].lng = atof(lng_obj->valuestring);
+                                    waypointList[i].lat = atof(lat_obj->valuestring);
+                                    printf("航点 %d：经度 = %.6f，纬度 = %.6f\n", i + 1, waypointList[i].lng, waypointList[i].lat);
+                                }
+                            }
+                        }
+
+                    } else {
+                        printf("gps_list 字段缺失或格式错误\n");
+                    }
+                }
+
+            } else {
+                printf("控制指令字段 'contro' 缺失或格式错误！\n");
+            }
+        } else {
+            printf("消息中缺少 'content' 字段！\n");
+        }
+        cJSON_Delete(root);
+    } else {
+        printf("解析 MQTT 消息 JSON 失败！\n");
+    }
 }
 
 /***************************************************************
@@ -360,7 +417,7 @@ begin:
   }
 
   printf("MQTTSubscribe  ...\n");
-  sprintf(subcribe_topic,"$oc/devices/%s/sys/commands/+",mqtt_devid);
+  //sprintf(subcribe_topic,"$oc/devices/%s/sys/commands/+",mqtt_devid);
   rc = MQTTSubscribe(&client, subcribe_topic, 0, mqtt_message_arrived);
   if (rc != 0) {
     printf("MQTTSubscribe: %d\n", rc);

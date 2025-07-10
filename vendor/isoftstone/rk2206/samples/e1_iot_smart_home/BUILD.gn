@@ -13,7 +13,7 @@
 
 static_library("iot_smart_home_example") {
   sources = [
-    "iot_smart_home_example.c",
+    "src/ship_smart.c",
     "src/lcd.c",
     "src/components.c",
     "src/smart_home.c",
@@ -25,6 +25,18 @@ static_library("iot_smart_home_example") {
     "src/drv_light.c",
     "src/drv_motor.c",
     "src/drv_sensors.c",
+    "src/tds_sensor.c",
+    "src/mux_selector.c",
+    "src/ph_turbidity_sensor.c",
+    "src/hmc5883l_sensor.c",
+    "src/ultrasonic_sensor.c",
+    "src/motor_control.c",
+    "src/water_pump.c",
+    "src/gps.c",
+    "src/autopilot_utils.c",
+
+    
+    
   ]
 
   include_dirs = [
@@ -41,7 +53,12 @@ static_library("iot_smart_home_example") {
     "//third_party/musl/porting/liteos_m/kernel/include",
     "//third_party/paho_mqtt/MQTTPacket/src",
     "//third_party/paho_mqtt/MQTTClient-C/src",
+    "//third_party/paho_mqtt/MQTTClient-C/src/liteOS",
+    "//third_party/mbedtls/include/mbedtls",
+    "//third_party/mbedtls/include",
   ]
 
-  deps = [ "//device/rockchip/hardware:hardware" ]
+  deps = [ 
+    "//device/rockchip/hardware:hardware",
+    "//third_party/mbedtls:mbedtls", ]
 }

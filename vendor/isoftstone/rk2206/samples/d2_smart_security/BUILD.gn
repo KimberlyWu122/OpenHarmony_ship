@@ -25,6 +25,7 @@ static_library("smart_security_example") {
         "//utils/native/lite/include",
         "include",
         "//base/iot_hardware/peripheral/interfaces/kits",
+        "//vendor/isoftstone/rk2206/samples/collector/include",
     ]
 
     deps = [
